@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Logo, TurboIcon, SpinningTurbo } from '@/components/Logo'
+import { ExplodedTurbo, TurboSpecs } from '@/components/ExplodedTurbo'
 
 // Before/After Slider Component
 function BeforeAfterSlider() {
@@ -300,6 +301,32 @@ export default function Home() {
               features={['Originalni delovi', 'Stručna ugradnja', 'Garancija na delove']}
               delay={200}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Turbo Anatomy - Light Section for Contrast */}
+      <section className="py-24 bg-[#f5f0e8] relative overflow-hidden">
+        {/* Sunburst pattern (inspired by ref-1) */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-[200%]" 
+               style={{ background: 'repeating-conic-gradient(from 0deg, #c45c26 0deg 10deg, transparent 10deg 20deg)' }} />
+        </div>
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-12 reveal">
+            <p className="text-[#c45c26] font-display text-lg mb-2 tracking-widest">ANATOMIJA</p>
+            <h2 className="font-display text-4xl sm:text-5xl text-[#1a1a1a]">KAKO RADI TURBINA</h2>
+            <p className="text-zinc-600 mt-4 max-w-2xl mx-auto">Pređite mišem preko delova da saznate više o svakom delu turbo kompresora</p>
+          </div>
+          
+          {/* Exploded View */}
+          <div className="reveal max-w-4xl mx-auto">
+            <ExplodedTurbo className="h-[300px] sm:h-[400px]" />
+          </div>
+
+          {/* Specs Grid */}
+          <div className="mt-16 reveal">
+            <TurboSpecs />
           </div>
         </div>
       </section>
