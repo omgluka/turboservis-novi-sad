@@ -1,602 +1,564 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Logo, TurboIcon, SpinningTurbo } from '@/components/Logo'
-import { ExplodedTurbo, TurboSpecs } from '@/components/ExplodedTurbo'
 
 // ============================================
-// COMPONENTS
+// SCROLL PROGRESS HOOK
 // ============================================
-
-// Before/After Slider
-function BeforeAfterSlider() {
-  const [sliderPosition, setSliderPosition] = useState(50)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isDragging = useRef(false)
-
-  const handleMove = (clientX: number) => {
-    if (!containerRef.current || !isDragging.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const x = clientX - rect.left
-    const percentage = Math.min(Math.max((x / rect.width) * 100, 0), 100)
-    setSliderPosition(percentage)
-  }
+function useScrollProgress(ref: React.RefObject<HTMLElement>) {
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const handleUp = () => { isDragging.current = false }
-    window.addEventListener('mouseup', handleUp)
-    window.addEventListener('touchend', handleUp)
-    return () => {
-      window.removeEventListener('mouseup', handleUp)
-      window.removeEventListener('touchend', handleUp)
+    const element = ref.current
+    if (!element) return
+
+    const handleScroll = () => {
+      const rect = element.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+      const elementHeight = rect.height
+      
+      // Calculate progress: 0 when element enters viewport, 1 when it leaves
+      const start = windowHeight
+      const end = -elementHeight
+      const current = rect.top
+      
+      const progress = Math.min(Math.max((start - current) / (start - end), 0), 1)
+      setProgress(progress)
     }
-  }, [])
 
-  return (
-    <div 
-      ref={containerRef}
-      className="relative aspect-[16/9] rounded-2xl overflow-hidden select-none cursor-ew-resize group"
-      onMouseDown={() => { isDragging.current = true }}
-      onMouseMove={(e) => handleMove(e.clientX)}
-      onTouchStart={() => { isDragging.current = true }}
-      onTouchMove={(e) => handleMove(e.touches[0].clientX)}
-    >
-      {/* Before */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700">
-              <span className="text-5xl grayscale opacity-40">⚙️</span>
-            </div>
-            <p className="font-display text-2xl text-zinc-500">OŠTEĆENA</p>
-            <p className="text-zinc-600 text-sm mt-2">Gubitak snage · Dim · Buka</p>
-          </div>
-        </div>
-      </div>
-      
-      {/* After */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-br from-[#1a1512] via-[#0f0d0b] to-[#0a0a0a]"
-        style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
-      >
-        <div className="absolute inset-0 bg-[#c45c26]/5" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#c45c26]/20 to-transparent flex items-center justify-center border border-[#c45c26]/30 glow-rust">
-              <SpinningTurbo className="w-16 h-16" color="#c45c26" />
-            </div>
-            <p className="font-display text-2xl text-[#c45c26] text-glow">OBNOVLJENA</p>
-            <p className="text-zinc-400 text-sm mt-2">Puna snaga · Tihi rad · Garancija</p>
-          </div>
-        </div>
-      </div>
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [ref])
 
-      {/* Slider */}
-      <div 
-        className="absolute top-0 bottom-0 w-1 bg-[#c45c26] z-20"
-        style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
-      >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-[#c45c26] rounded-full flex items-center justify-center shadow-2xl border-4 border-white/10 group-hover:scale-110 transition-transform">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Labels */}
-      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-medium tracking-widest text-zinc-400">PRE</div>
-      <div className="absolute top-4 right-4 bg-[#c45c26] px-4 py-2 rounded-full text-xs font-medium tracking-widest text-white">POSLE</div>
-    </div>
-  )
+  return progress
 }
 
-// Service Card
-function ServiceCard({ icon, title, description, features, index }: { 
-  icon: string; title: string; description: string; features: string[]; index: number 
-}) {
-  return (
-    <div 
-      className="group relative bg-gradient-to-b from-zinc-900/80 to-zinc-900/40 backdrop-blur border border-zinc-800/50 rounded-2xl p-8 hover:border-[#c45c26]/30 transition-all duration-500 reveal"
-      style={{ transitionDelay: `${index * 100}ms` }}
-    >
-      {/* Number */}
-      <div className="absolute top-6 right-6 font-display text-5xl text-zinc-800 group-hover:text-[#c45c26]/20 transition-colors">
-        0{index + 1}
-      </div>
-      
-      {/* Icon */}
-      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#c45c26]/20 to-transparent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-        <span className="text-3xl">{icon}</span>
-      </div>
-      
-      {/* Content */}
-      <h3 className="font-display text-2xl text-[#f5f0e8] mb-3 group-hover:text-[#c45c26] transition-colors">{title}</h3>
-      <p className="text-zinc-500 leading-relaxed mb-6">{description}</p>
-      
-      {/* Features */}
-      <ul className="space-y-3">
-        {features.map((feature, i) => (
-          <li key={i} className="flex items-center gap-3 text-sm">
-            <div className="w-5 h-5 rounded-full bg-[#c45c26]/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-[#c45c26] text-xs">✓</span>
-            </div>
-            <span className="text-zinc-400">{feature}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-// Process Step
-function ProcessStep({ number, title, description, isLast }: { 
-  number: string; title: string; description: string; isLast?: boolean 
-}) {
-  return (
-    <div className="relative flex gap-6">
-      {/* Line */}
-      {!isLast && (
-        <div className="absolute left-6 top-14 bottom-0 w-px bg-gradient-to-b from-[#c45c26]/50 to-transparent" />
-      )}
-      
-      {/* Number */}
-      <div className="w-12 h-12 rounded-full bg-[#c45c26] flex items-center justify-center flex-shrink-0 font-display text-xl text-white shadow-lg glow-rust">
-        {number}
-      </div>
-      
-      {/* Content */}
-      <div className="pb-12">
-        <h4 className="font-display text-xl text-[#f5f0e8] mb-2">{title}</h4>
-        <p className="text-zinc-500 text-sm leading-relaxed">{description}</p>
-      </div>
-    </div>
-  )
-}
-
-// Scroll reveal hook
-function useScrollReveal() {
+// ============================================
+// HERO SECTION - COLBO STYLE
+// ============================================
+function HeroSection() {
+  const [loaded, setLoaded] = useState(false)
+  
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible')
-      }),
-      { threshold: 0.1 }
-    )
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
-    return () => observer.disconnect()
+    setLoaded(true)
   }, [])
+
+  return (
+    <section className="min-h-screen bg-[#0a0f14] relative overflow-hidden flex items-center">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0f14] via-[#0d1319] to-[#0a0f14]" />
+      
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{ 
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '80px 80px'
+      }} />
+
+      {/* Navigation */}
+      <nav className="absolute top-0 left-0 right-0 z-50 px-8 py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <div className="font-display text-xl text-white tracking-wider">
+            turbo<span className="text-[#c45c26]">servis</span>
+          </div>
+          
+          {/* Nav links */}
+          <div className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
+            <a href="#proces" className="hover:text-white transition-colors">Proces</a>
+            <a href="#usluge" className="hover:text-white transition-colors">Usluge</a>
+            <a href="#kontakt" className="hover:text-white transition-colors">Kontakt</a>
+          </div>
+          
+          {/* CTA */}
+          <a href="tel:+381637725026" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
+            <div className="w-2 h-2 rounded-full bg-[#c45c26] animate-pulse" />
+            063 772 5026
+          </a>
+        </div>
+      </nav>
+
+      {/* Main content */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-8">
+        <div className="grid lg:grid-cols-2 gap-8 items-center min-h-screen py-32">
+          
+          {/* Left side - Giant Typography + Floating Product */}
+          <div className="relative">
+            {/* Background text - massive */}
+            <div className="relative">
+              <h1 
+                className={`font-display text-[12vw] lg:text-[10vw] leading-[0.85] text-white/10 select-none transition-all duration-1000 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
+                TURBO
+                <br />
+                SERVIS
+              </h1>
+              
+              {/* Floating turbocharger image - overlaps the text */}
+              <div 
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] aspect-square transition-all duration-1000 delay-300 ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
+              >
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-[#c45c26]/20 rounded-full blur-[80px] scale-75" />
+                
+                {/* Product image placeholder */}
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center">
+                    {/* Placeholder for turbocharger image */}
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">⚙️</div>
+                      <p className="text-zinc-600 text-xs tracking-wider">TURBO IMAGE</p>
+                      <p className="text-zinc-700 text-[10px]">800×800px PNG</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Subtitle under the composition */}
+            <div className={`mt-8 transition-all duration-1000 delay-500 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <div className="flex items-center gap-4 text-zinc-500 text-sm">
+                <div className="w-12 h-px bg-zinc-700" />
+                <span>Veternik, Novi Sad</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - Product Info */}
+          <div className={`lg:pl-12 transition-all duration-1000 delay-700 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            {/* Product title */}
+            <p className="text-[#c45c26] text-sm tracking-widest mb-4">STRUČAN REMONT</p>
+            <h2 className="font-display text-4xl lg:text-5xl text-white leading-tight mb-6">
+              Profesionalna obnova turbo kompresora
+            </h2>
+            
+            <p className="text-zinc-400 leading-relaxed mb-8 max-w-md">
+              Kompletan servis turbina za sva vozila. Od dijagnostike do potpunog remonta sa 
+              <span className="text-white"> garancijom 12 meseci</span>.
+            </p>
+
+            {/* Feature dots */}
+            <div className="flex items-center gap-3 mb-8">
+              {['Dijagnostika', 'Remont', 'Balansiranje', 'Garancija'].map((_, i) => (
+                <div key={i} className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-[#c45c26]' : 'bg-zinc-700'}`} />
+              ))}
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-6 mb-10 py-6 border-t border-b border-zinc-800/50">
+              <div>
+                <div className="font-display text-3xl text-white">10+</div>
+                <div className="text-xs text-zinc-600 tracking-wider mt-1">GODINA</div>
+              </div>
+              <div>
+                <div className="font-display text-3xl text-white">1000+</div>
+                <div className="text-xs text-zinc-600 tracking-wider mt-1">SERVISA</div>
+              </div>
+              <div>
+                <div className="font-display text-3xl text-white">12</div>
+                <div className="text-xs text-zinc-600 tracking-wider mt-1">MES. GARANCIJE</div>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <a 
+              href="#kontakt"
+              className="inline-flex items-center gap-3 bg-transparent border border-zinc-700 hover:border-[#c45c26] text-white px-8 py-4 rounded-full transition-all hover:bg-[#c45c26]/10 group"
+            >
+              <span>Zakažite pregled</span>
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <span className="text-zinc-600 text-xs tracking-widest">SCROLL</span>
+        <div className="w-px h-12 bg-gradient-to-b from-zinc-600 to-transparent" />
+      </div>
+    </section>
+  )
+}
+
+// ============================================
+// PROCESS SCROLL SECTION
+// ============================================
+const PROCESS_STEPS = [
+  {
+    id: 1,
+    title: 'DIJAGNOSTIKA',
+    subtitle: 'Pregled i analiza',
+    description: 'Kompletna dijagnostika turbine. Vizuelni pregled, test pritiska, analiza habanja. Besplatna procena stanja.',
+    image: '/images/process-1.png', // Placeholder path
+  },
+  {
+    id: 2,
+    title: 'DEMONTAŽA',
+    subtitle: 'Rastavljanje komponenti',
+    description: 'Pažljivo rastavljanje svih delova. Dokumentovanje stanja svake komponente za preciznu obnovu.',
+    image: '/images/process-2.png',
+  },
+  {
+    id: 3,
+    title: 'REMONT',
+    subtitle: 'Zamena i obnova',
+    description: 'Zamena ležajeva, karika i oštećenih delova. Čišćenje i obnova kućišta. Samo kvalitetni delovi.',
+    image: '/images/process-3.png',
+  },
+  {
+    id: 4,
+    title: 'BALANSIRANJE',
+    subtitle: 'Precizno podešavanje',
+    description: 'Profesionalno balansiranje rotora na specijalnoj opremi. Ključno za dug vek trajanja.',
+    image: '/images/process-4.png',
+  },
+  {
+    id: 5,
+    title: 'TESTIRANJE',
+    subtitle: 'Kontrola kvaliteta',
+    description: 'Završno testiranje pod pritiskom. Provera svih parametara pre vraćanja na vozilo.',
+    image: '/images/process-5.png',
+  },
+]
+
+function ProcessSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const progress = useScrollProgress(sectionRef as React.RefObject<HTMLElement>)
+  
+  // Determine which step is active based on scroll progress
+  const totalSteps = PROCESS_STEPS.length
+  const activeStepIndex = Math.min(
+    Math.floor(progress * totalSteps),
+    totalSteps - 1
+  )
+  const activeStep = PROCESS_STEPS[activeStepIndex]
+  
+  // Progress within current step (0-1)
+  const stepProgress = (progress * totalSteps) % 1
+
+  return (
+    <section 
+      ref={sectionRef}
+      id="proces"
+      className="bg-[#0a0f14] relative"
+      style={{ height: `${100 + (totalSteps * 80)}vh` }} // Extended height for scroll
+    >
+      {/* Sticky container */}
+      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Left - Content */}
+            <div className="relative z-10">
+              {/* Section label */}
+              <p className="text-[#c45c26] text-sm tracking-widest mb-6">PROCES REMONTA</p>
+              
+              {/* Step indicator */}
+              <div className="flex items-center gap-4 mb-8">
+                {PROCESS_STEPS.map((step, i) => (
+                  <div 
+                    key={step.id}
+                    className={`h-1 rounded-full transition-all duration-500 ${
+                      i === activeStepIndex 
+                        ? 'w-8 bg-[#c45c26]' 
+                        : i < activeStepIndex 
+                          ? 'w-4 bg-[#c45c26]/50' 
+                          : 'w-4 bg-zinc-800'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Step number */}
+              <div className="font-display text-8xl text-zinc-800 mb-4">
+                0{activeStep.id}
+              </div>
+
+              {/* Step content - with transitions */}
+              <div className="relative h-48">
+                {PROCESS_STEPS.map((step, i) => (
+                  <div
+                    key={step.id}
+                    className={`absolute inset-0 transition-all duration-500 ${
+                      i === activeStepIndex
+                        ? 'opacity-100 translate-y-0'
+                        : i < activeStepIndex
+                          ? 'opacity-0 -translate-y-8'
+                          : 'opacity-0 translate-y-8'
+                    }`}
+                  >
+                    <h2 className="font-display text-4xl lg:text-5xl text-white mb-2">
+                      {step.title}
+                    </h2>
+                    <p className="text-zinc-500 text-lg mb-4">{step.subtitle}</p>
+                    <p className="text-zinc-400 leading-relaxed max-w-md">
+                      {step.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Specs/details */}
+              <div className="mt-8 pt-8 border-t border-zinc-800/50">
+                <div className="grid grid-cols-2 gap-6 text-sm">
+                  <div>
+                    <p className="text-zinc-600 mb-1">Vreme trajanja</p>
+                    <p className="text-white">1-3 radna dana</p>
+                  </div>
+                  <div>
+                    <p className="text-zinc-600 mb-1">Garancija</p>
+                    <p className="text-white">12 meseci</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Image */}
+            <div className="relative">
+              {/* Glow */}
+              <div className="absolute inset-0 bg-[#c45c26]/10 rounded-3xl blur-[100px] scale-90" />
+              
+              {/* Image container */}
+              <div className="relative aspect-square rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 overflow-hidden">
+                {/* Progress bar on image */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-800">
+                  <div 
+                    className="h-full bg-[#c45c26] transition-all duration-300"
+                    style={{ width: `${(activeStepIndex / (totalSteps - 1)) * 100}%` }}
+                  />
+                </div>
+
+                {/* Image stack - all positioned absolute, opacity controls visibility */}
+                {PROCESS_STEPS.map((step, i) => (
+                  <div
+                    key={step.id}
+                    className={`absolute inset-0 flex items-center justify-center p-12 transition-all duration-700 ${
+                      i === activeStepIndex
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-95'
+                    }`}
+                  >
+                    {/* Placeholder for actual image */}
+                    <div className="w-full h-full rounded-2xl bg-zinc-800/50 border border-zinc-700/30 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-5xl mb-4">
+                          {['🔍', '🔧', '⚙️', '⚖️', '✅'][i]}
+                        </div>
+                        <p className="text-zinc-500 text-sm">{step.title}</p>
+                        <p className="text-zinc-700 text-xs mt-2">Slika: {step.image}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ============================================
+// SERVICES SECTION
+// ============================================
+function ServicesSection() {
+  const services = [
+    {
+      icon: '🔧',
+      title: 'REMONT TURBINE',
+      description: 'Kompletan remont sa zamenom ležajeva, karika i balansiranjem rotora.',
+      price: 'od 150€'
+    },
+    {
+      icon: '🔍',
+      title: 'DIJAGNOSTIKA',
+      description: 'Stručna dijagnostika i besplatna procena pre bilo kakvog rada.',
+      price: 'Besplatno'
+    },
+    {
+      icon: '⚙️',
+      title: 'ZAMENA DELOVA',
+      description: 'Originalni i kvalitetni zamenski delovi sa punom garancijom.',
+      price: 'Po dogovoru'
+    },
+  ]
+
+  return (
+    <section id="usluge" className="py-32 bg-[#0a0f14]">
+      <div className="max-w-7xl mx-auto px-8">
+        {/* Header */}
+        <div className="max-w-2xl mb-16">
+          <p className="text-[#c45c26] text-sm tracking-widest mb-4">USLUGE</p>
+          <h2 className="font-display text-4xl lg:text-5xl text-white mb-6">Šta radimo</h2>
+          <p className="text-zinc-500 leading-relaxed">
+            Pružamo kompletan servis turbo kompresora — od dijagnostike do potpunog remonta.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {services.map((service, i) => (
+            <div 
+              key={i}
+              className="group bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-8 hover:border-[#c45c26]/30 transition-all duration-500"
+            >
+              <div className="text-4xl mb-6">{service.icon}</div>
+              <h3 className="font-display text-2xl text-white mb-3 group-hover:text-[#c45c26] transition-colors">
+                {service.title}
+              </h3>
+              <p className="text-zinc-500 text-sm leading-relaxed mb-6">{service.description}</p>
+              <div className="text-[#c45c26] font-display text-xl">{service.price}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ============================================
+// CONTACT SECTION
+// ============================================
+function ContactSection() {
+  return (
+    <section id="kontakt" className="py-32 bg-[#080b0e]">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="grid lg:grid-cols-2 gap-16">
+          {/* Left - Info */}
+          <div>
+            <p className="text-[#c45c26] text-sm tracking-widest mb-4">KONTAKT</p>
+            <h2 className="font-display text-4xl lg:text-5xl text-white mb-6">Javite nam se</h2>
+            <p className="text-zinc-500 leading-relaxed mb-10 max-w-md">
+              Pozovite nas za besplatnu procenu ili pošaljite upit. Odgovaramo u roku od nekoliko sati.
+            </p>
+
+            <div className="space-y-6">
+              <a href="tel:+381637725026" className="flex items-center gap-4 group">
+                <div className="w-14 h-14 rounded-xl bg-[#c45c26]/10 flex items-center justify-center text-2xl">
+                  📞
+                </div>
+                <div>
+                  <p className="text-zinc-600 text-xs tracking-wider mb-1">TELEFON</p>
+                  <p className="text-white text-lg group-hover:text-[#c45c26] transition-colors">063 772 5026</p>
+                </div>
+              </a>
+
+              <a href="https://maps.google.com/?q=Svetih+Arhanđela+9,+Veternik" target="_blank" className="flex items-center gap-4 group">
+                <div className="w-14 h-14 rounded-xl bg-[#c45c26]/10 flex items-center justify-center text-2xl">
+                  📍
+                </div>
+                <div>
+                  <p className="text-zinc-600 text-xs tracking-wider mb-1">ADRESA</p>
+                  <p className="text-white text-lg group-hover:text-[#c45c26] transition-colors">Svetih Arhanđela 9, Veternik</p>
+                </div>
+              </a>
+
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-[#c45c26]/10 flex items-center justify-center text-2xl">
+                  🕐
+                </div>
+                <div>
+                  <p className="text-zinc-600 text-xs tracking-wider mb-1">RADNO VREME</p>
+                  <p className="text-white text-lg">Pon-Pet 8-17h · Sub 8-13h</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick actions */}
+            <div className="flex gap-4 mt-10">
+              <a 
+                href="tel:+381637725026" 
+                className="flex-1 bg-[#c45c26] hover:bg-[#d46a34] text-white py-4 rounded-xl font-semibold text-center transition-colors"
+              >
+                📞 Pozovite
+              </a>
+              <a 
+                href="https://wa.me/381637725026" 
+                target="_blank"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-semibold text-center transition-colors"
+              >
+                💬 WhatsApp
+              </a>
+            </div>
+          </div>
+
+          {/* Right - Form */}
+          <div>
+            <form className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-8">
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <input 
+                  type="text" 
+                  placeholder="Ime i prezime" 
+                  className="w-full px-5 py-4 bg-zinc-900/50 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-white placeholder:text-zinc-600" 
+                />
+                <input 
+                  type="tel" 
+                  placeholder="Telefon *" 
+                  required 
+                  className="w-full px-5 py-4 bg-zinc-900/50 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-white placeholder:text-zinc-600" 
+                />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Vozilo (marka, model, godina)" 
+                className="w-full px-5 py-4 bg-zinc-900/50 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-white placeholder:text-zinc-600 mb-4" 
+              />
+              <textarea 
+                rows={4} 
+                placeholder="Opišite problem sa turbinom..." 
+                className="w-full px-5 py-4 bg-zinc-900/50 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-white placeholder:text-zinc-600 resize-none mb-6" 
+              />
+              <button 
+                type="submit" 
+                className="w-full bg-[#c45c26] hover:bg-[#d46a34] text-white py-4 rounded-xl font-semibold text-lg transition-colors"
+              >
+                Pošaljite Upit
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ============================================
+// FOOTER
+// ============================================
+function Footer() {
+  return (
+    <footer className="bg-[#050709] border-t border-zinc-900 py-12">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="font-display text-xl text-white tracking-wider">
+            turbo<span className="text-[#c45c26]">servis</span>
+            <span className="text-zinc-600 text-sm ml-4">Novi Sad · Est. 2014</span>
+          </div>
+          <div className="text-zinc-600 text-sm">
+            © 2026 Sva prava zadržana
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
 }
 
 // ============================================
 // PAGE
 // ============================================
-
 export default function Home() {
-  useScrollReveal()
-
   return (
-    <>
-      {/* Film grain */}
-      <div className="grain" />
-
-      {/* ==================== HERO ==================== */}
-      <section className="min-h-screen flex items-center relative overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
-        
-        {/* Gradient orbs */}
-        <div className="absolute top-1/4 left-0 w-[600px] h-[600px] bg-[#c45c26]/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[#c45c26]/5 rounded-full blur-[120px]" />
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{ 
-          backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 pt-40 w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left - Content */}
-            <div>
-              <div className="inline-flex items-center gap-2 bg-[#c45c26]/10 border border-[#c45c26]/20 rounded-full px-4 py-2 mb-8 animate-fade-in opacity-0">
-                <span className="w-2 h-2 bg-[#c45c26] rounded-full animate-pulse" />
-                <span className="text-[#c45c26] text-sm font-medium tracking-wide">VETERNIK, NOVI SAD</span>
-              </div>
-              
-              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-[#f5f0e8] leading-[0.9] animate-fade-in-up opacity-0 animate-delay-100">
-                STRUČAN<br />
-                <span className="text-[#c45c26]">REMONT</span><br />
-                TURBINA
-              </h1>
-              
-              <p className="mt-8 text-lg text-zinc-400 max-w-md leading-relaxed animate-fade-in-up opacity-0 animate-delay-200">
-                Profesionalna dijagnostika i remont turbo kompresora za sva vozila. 
-                <span className="text-[#f5f0e8]"> Preko 10 godina iskustva.</span>
-              </p>
-              
-              {/* Stats inline */}
-              <div className="flex gap-8 mt-8 animate-fade-in-up opacity-0 animate-delay-300">
-                <div>
-                  <div className="font-display text-3xl text-[#c45c26]">10+</div>
-                  <div className="text-xs text-zinc-600 tracking-wider">GODINA</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl text-[#c45c26]">1000+</div>
-                  <div className="text-xs text-zinc-600 tracking-wider">SERVISA</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl text-[#c45c26]">12</div>
-                  <div className="text-xs text-zinc-600 tracking-wider">MES. GARANCIJE</div>
-                </div>
-              </div>
-              
-              {/* CTA */}
-              <div className="mt-10 flex flex-wrap gap-4 animate-fade-in-up opacity-0 animate-delay-400">
-                <a 
-                  href="#kontakt" 
-                  className="group bg-[#c45c26] hover:bg-[#d46a34] text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:scale-105 flex items-center gap-3"
-                >
-                  Zakažite Pregled
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </a>
-                <a 
-                  href="tel:+381637725026" 
-                  className="border border-zinc-700 hover:border-[#c45c26] text-[#f5f0e8] px-8 py-4 rounded-xl font-semibold text-lg transition-all flex items-center gap-3"
-                >
-                  <span className="text-[#c45c26]">📞</span> 063 772 5026
-                </a>
-              </div>
-            </div>
-
-            {/* Right - Visual */}
-            <div className="hidden lg:block animate-fade-in opacity-0 animate-delay-500">
-              <div className="relative">
-                {/* Glow */}
-                <div className="absolute inset-0 bg-[#c45c26]/20 rounded-full blur-[100px] scale-75" />
-                
-                {/* Badge */}
-                <div className="relative">
-                  <Logo className="w-full max-w-md mx-auto" variant="full" color="light" />
-                </div>
-                
-                {/* Floating elements */}
-                <div className="absolute -top-8 -right-8 w-20 h-20 bg-zinc-900/80 backdrop-blur rounded-xl border border-zinc-800 flex items-center justify-center animate-float">
-                  <span className="text-3xl">🔧</span>
-                </div>
-                <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-zinc-900/80 backdrop-blur rounded-xl border border-zinc-800 flex items-center justify-center animate-float" style={{ animationDelay: '1s' }}>
-                  <span className="text-2xl">⚙️</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <div className="flex flex-col items-center gap-2 text-zinc-600">
-            <span className="text-xs tracking-widest">SCROLL</span>
-            <div className="w-px h-8 bg-gradient-to-b from-zinc-600 to-transparent" />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== SERVICES ==================== */}
-      <section id="usluge" className="py-24 bg-[#0a0a0a] relative">
-        <div className="max-w-7xl mx-auto px-6">
-          {/* Header */}
-          <div className="max-w-2xl mb-16 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">USLUGE</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8] mb-6">ŠTA RADIMO</h2>
-            <p className="text-zinc-500 leading-relaxed">
-              Pružamo kompletan servis turbo kompresora — od dijagnostike do potpunog remonta. 
-              Radimo sa svim tipovima vozila i svim brendovima turbina.
-            </p>
-          </div>
-          
-          {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <ServiceCard
-              icon="🔧"
-              title="REMONT TURBINE"
-              description="Kompletan remont turbo kompresora sa zamenom ležajeva, karika i balansiranjem rotora."
-              features={['Zamena ležajeva i karika', 'Balansiranje rotora', 'Kompletna obnova', 'Garancija 12 meseci']}
-              index={0}
-            />
-            <ServiceCard
-              icon="🔍"
-              title="DIJAGNOSTIKA"
-              description="Stručna dijagnostika i utvrđivanje problema. Besplatna procena pre bilo kakvog rada."
-              features={['Vizuelni pregled', 'Test pritiska', 'Analiza stanja', 'Besplatna procena']}
-              index={1}
-            />
-            <ServiceCard
-              icon="⚙️"
-              title="ZAMENA DELOVA"
-              description="Ugradnja originalnih i kvalitetnih zamenskih delova sa punom garancijom."
-              features={['Originalni delovi', 'Kvalitetne zamene', 'Stručna ugradnja', 'Garancija na delove']}
-              index={2}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== BEFORE/AFTER ==================== */}
-      <section className="py-24 bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f]">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">REZULTAT</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8]">PRE I POSLE</h2>
-          </div>
-          <div className="reveal">
-            <BeforeAfterSlider />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== TURBO ANATOMY (Light Section) ==================== */}
-      <section className="py-24 bg-[#f5f0e8] relative overflow-hidden">
-        {/* Sunburst */}
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] aspect-square" 
-               style={{ background: 'repeating-conic-gradient(from 0deg, #c45c26 0deg 5deg, transparent 5deg 10deg)' }} />
-        </div>
-        
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-12 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">TEHNOLOGIJA</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#1a1a1a]">ANATOMIJA TURBINE</h2>
-            <p className="text-zinc-600 mt-4 max-w-xl mx-auto">Pređite preko delova da saznate više o komponentama turbo kompresora</p>
-          </div>
-          
-          <div className="reveal">
-            <ExplodedTurbo className="h-[280px] sm:h-[350px] max-w-3xl mx-auto" />
-          </div>
-          
-          <div className="mt-16 reveal">
-            <TurboSpecs />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== PROCESS ==================== */}
-      <section className="py-24 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            {/* Left - Content */}
-            <div className="reveal">
-              <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">PROCES</p>
-              <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8] mb-6">KAKO RADIMO</h2>
-              <p className="text-zinc-500 leading-relaxed mb-12">
-                Od prvog kontakta do predaje vozila — transparentan proces bez skrivenih troškova. 
-                Znate tačno šta se radi i koliko košta.
-              </p>
-              
-              <ProcessStep 
-                number="1" 
-                title="DIJAGNOSTIKA" 
-                description="Besplatan pregled i procena stanja turbine. Dobijate detaljan izveštaj pre bilo kakvog rada."
-              />
-              <ProcessStep 
-                number="2" 
-                title="PONUDA" 
-                description="Transparentna ponuda sa tačnom cenom. Bez skrivenih troškova. Radimo tek nakon vaše saglasnosti."
-              />
-              <ProcessStep 
-                number="3" 
-                title="REMONT" 
-                description="Stručan remont sa kvalitetnim delovima. Rok izrade 1-3 radna dana."
-              />
-              <ProcessStep 
-                number="4" 
-                title="GARANCIJA" 
-                description="12 meseci garancije na sve radove. Tu smo i posle servisa za sva pitanja."
-                isLast
-              />
-            </div>
-            
-            {/* Right - Image placeholder */}
-            <div className="reveal">
-              <div className="aspect-[4/5] bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-zinc-800/50 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5" style={{ 
-                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.05) 30px, rgba(255,255,255,0.05) 60px)' 
-                }} />
-                <div className="text-center p-8">
-                  <Logo className="w-40 h-40 mx-auto mb-4 opacity-50" variant="full" color="light" />
-                  <p className="text-zinc-600 text-sm">Fotografija radionice</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== FAQ ==================== */}
-      <section className="py-24 bg-[#0f0f0f]">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-16 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">FAQ</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8]">ČESTA PITANJA</h2>
-          </div>
-          
-          <div className="space-y-4">
-            {[
-              { q: 'Koliko traje remont turbine?', a: 'Standardni remont traje 1-3 radna dana. Za hitne slučajeve nudimo ubrzanu uslugu istog ili sledećeg dana.' },
-              { q: 'Da li dajete garanciju na remont?', a: 'Da, na sve radove i ugrađene delove dajemo garanciju od 12 meseci bez ograničenja kilometraže.' },
-              { q: 'Koje brendove turbina servisirate?', a: 'Radimo sa svim brendovima: Garrett, BorgWarner, Holset, IHI, Mitsubishi, KKK, i drugima.' },
-              { q: 'Kako da znam da mi turbina treba remont?', a: 'Najčešći znaci: gubitak snage motora, crni ili plavi dim, zviždanje ili neobičan zvuk, povećana potrošnja ulja.' },
-              { q: 'Da li radite sa teretnim vozilima?', a: 'Da, servisiramo turbo kompresore za sva vozila — putnička, teretna, autobuse, radne mašine i poljoprivrednu mehanizaciju.' },
-            ].map((item, i) => (
-              <div 
-                key={i} 
-                className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-6 reveal hover:border-[#c45c26]/20 transition-colors"
-                style={{ transitionDelay: `${i * 50}ms` }}
-              >
-                <h3 className="font-semibold text-[#f5f0e8] mb-3">{item.q}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== CONTACT ==================== */}
-      <section id="kontakt" className="py-24 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-5 gap-12">
-            {/* Left - Info */}
-            <div className="lg:col-span-2 reveal">
-              <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">KONTAKT</p>
-              <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8] mb-6">JAVITE NAM SE</h2>
-              <p className="text-zinc-500 leading-relaxed mb-10">
-                Pozovite nas za besplatnu procenu ili pošaljite upit. Odgovaramo u roku od nekoliko sati.
-              </p>
-              
-              <div className="space-y-6">
-                <a href="tel:+381637725026" className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#c45c26]/10 flex items-center justify-center group-hover:bg-[#c45c26]/20 transition-colors">
-                    <span className="text-xl">📞</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-600 tracking-wider mb-1">TELEFON</p>
-                    <p className="text-[#f5f0e8] font-semibold group-hover:text-[#c45c26] transition-colors">063 772 5026</p>
-                  </div>
-                </a>
-                
-                <a href="https://maps.google.com/?q=Svetih+Arhanđela+9,+Veternik" target="_blank" className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#c45c26]/10 flex items-center justify-center group-hover:bg-[#c45c26]/20 transition-colors">
-                    <span className="text-xl">📍</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-600 tracking-wider mb-1">ADRESA</p>
-                    <p className="text-[#f5f0e8] font-semibold group-hover:text-[#c45c26] transition-colors">Svetih Arhanđela 9, Veternik</p>
-                  </div>
-                </a>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#c45c26]/10 flex items-center justify-center">
-                    <span className="text-xl">🕐</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-600 tracking-wider mb-1">RADNO VREME</p>
-                    <p className="text-[#f5f0e8] font-semibold">Pon-Pet 8-17h · Sub 8-13h</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Quick actions */}
-              <div className="flex gap-3 mt-10">
-                <a 
-                  href="tel:+381637725026" 
-                  className="flex-1 bg-[#c45c26] hover:bg-[#d46a34] text-white py-4 rounded-xl font-semibold text-center transition-colors"
-                >
-                  📞 Pozovite
-                </a>
-                <a 
-                  href="https://wa.me/381637725026" 
-                  target="_blank"
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-semibold text-center transition-colors"
-                >
-                  💬 WhatsApp
-                </a>
-              </div>
-            </div>
-            
-            {/* Right - Form */}
-            <div className="lg:col-span-3 reveal">
-              <form className="bg-zinc-900/50 border border-zinc-800/50 rounded-2xl p-8">
-                <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                  <input 
-                    type="text" 
-                    placeholder="Ime i prezime" 
-                    className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600" 
-                  />
-                  <input 
-                    type="tel" 
-                    placeholder="Telefon *" 
-                    required 
-                    className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600" 
-                  />
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="Vozilo (marka, model, godina)" 
-                  className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600 mb-4" 
-                />
-                <textarea 
-                  rows={4} 
-                  placeholder="Opišite problem sa turbinom..." 
-                  className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600 resize-none mb-6" 
-                />
-                <button 
-                  type="submit" 
-                  className="w-full bg-[#c45c26] hover:bg-[#d46a34] text-white py-4 rounded-xl font-semibold text-lg transition-colors"
-                >
-                  Pošaljite Upit
-                </button>
-                <p className="text-zinc-600 text-xs text-center mt-4">Odgovaramo u roku od nekoliko sati</p>
-              </form>
-            </div>
-          </div>
-          
-          {/* Map */}
-          <div className="mt-12 reveal">
-            <div className="rounded-2xl overflow-hidden border border-zinc-800/50 h-[300px]">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2805.8!2d19.7633!3d45.2707!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b1049a0b8b0b1%3A0x0!2sSvetih%20Arhan%C4%91ela%209%2C%20Veternik!5e0!3m2!1sen!2srs!4v1700000000000"
-                width="100%"
-                height="100%"
-                style={{ border: 0, filter: 'grayscale(1) contrast(1.1) brightness(0.8)' }}
-                allowFullScreen
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== FINAL CTA ==================== */}
-      <section className="py-24 bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a] relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center opacity-5">
-          <TurboIcon className="w-[800px] h-[800px]" color="#c45c26" />
-        </div>
-        
-        <div className="max-w-3xl mx-auto px-6 text-center relative z-10 reveal">
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl text-[#f5f0e8] mb-6">
-            PROBLEMI SA<br /><span className="text-[#c45c26]">TURBINOM?</span>
-          </h2>
-          <p className="text-zinc-500 text-lg mb-10 max-w-xl mx-auto">
-            Pozovite nas za besplatnu dijagnostiku i stručan savet. Ne čekajte da problem postane veći.
-          </p>
-          <a 
-            href="tel:+381637725026" 
-            className="inline-flex items-center gap-4 bg-[#c45c26] hover:bg-[#d46a34] text-white px-10 py-5 rounded-xl font-display text-2xl transition-all hover:scale-105 glow-rust"
-          >
-            <span>📞</span>
-            063 772 5026
-          </a>
-        </div>
-      </section>
-
-      {/* ==================== FOOTER ==================== */}
-      <footer className="bg-[#050505] border-t border-zinc-900 py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-4">
-              <SpinningTurbo className="w-10 h-10 opacity-60" />
-              <div>
-                <div className="font-display text-xl text-[#f5f0e8]">TURBO SERVIS</div>
-                <div className="text-xs text-zinc-600 tracking-wider">NOVI SAD · EST. 2014</div>
-              </div>
-            </div>
-            <div className="text-center md:text-right">
-              <p className="text-zinc-600 text-sm">Stručan remont turbo kompresora</p>
-              <p className="text-zinc-700 text-xs mt-1">© 2026 Sva prava zadržana</p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </>
+    <main className="bg-[#0a0f14]">
+      <HeroSection />
+      <ProcessSection />
+      <ServicesSection />
+      <ContactSection />
+      <Footer />
+    </main>
   )
 }
