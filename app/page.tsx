@@ -1,162 +1,131 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
-    <main className="min-h-screen bg-[#1a1f2e] text-white overflow-hidden">
+    <main className="min-h-screen bg-[#1c2230] text-white overflow-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-8 lg:px-16 py-6">
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-light tracking-wider">turbo servis</span>
+          <div className="text-base tracking-wider font-light">
+            turbo servis<span className="text-white/40">.</span>
           </div>
           
           {/* Nav Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#usluge" className="text-sm text-white/60 hover:text-white transition-colors">Usluge</a>
-            <a href="#proces" className="text-sm text-white/60 hover:text-white transition-colors">Proces</a>
-            <a href="#kontakt" className="text-sm text-white/60 hover:text-white transition-colors">Kontakt</a>
+          <div className="hidden md:flex items-center gap-10">
+            <a href="#usluge" className="text-sm text-white/50 hover:text-white transition-colors">Usluge</a>
+            <a href="#proces" className="text-sm text-white/50 hover:text-white transition-colors">Proces</a>
+            <a href="#kontakt" className="text-sm text-white/50 hover:text-white transition-colors">Kontakt</a>
           </div>
 
-          {/* CTA */}
+          {/* Contact Icon */}
           <a 
             href="tel:+381631234567"
-            className="hidden md:flex items-center gap-2 text-sm border border-white/20 rounded-full px-5 py-2 hover:bg-white/10 transition-colors"
+            className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
           >
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Pozovite nas
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
           </a>
-
-          {/* Mobile menu button */}
-          <button 
-            className="md:hidden p-2"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <div className="w-6 h-0.5 bg-white mb-1.5" />
-            <div className="w-6 h-0.5 bg-white" />
-          </button>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center">
-        {/* Background brand text */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        {/* Background brand text - positioned left */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none select-none">
           <h1 
-            className="text-[20vw] font-bold tracking-tighter text-white/[0.03] leading-none"
-            style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+            className="text-[28vw] font-bold leading-[0.85] tracking-tighter text-white/[0.07]"
+            style={{ marginLeft: '-2vw' }}
           >
-            TURBO
+            Turbo
           </h1>
         </div>
 
-        {/* Content Grid */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center pt-24">
+        {/* Main Content Container */}
+        <div className="relative z-10 w-full min-h-screen flex">
           
-          {/* Left: Product Image */}
-          <div className="relative flex items-center justify-center">
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 via-transparent to-transparent blur-3xl" />
+          {/* Left Side - Product Image (overlapping text) */}
+          <div className="flex-1 relative flex items-center justify-center">
+            {/* Turbo Image */}
+            <div className="relative w-[60vw] max-w-2xl aspect-square ml-[10vw]">
+              <Image
+                src="/images/turbo.png"
+                alt="Turbocharger"
+                fill
+                className="object-contain drop-shadow-2xl"
+                style={{ 
+                  filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.5))',
+                  transform: 'rotate(-15deg) scale(1.1)'
+                }}
+                priority
+              />
+            </div>
             
-            {/* Product image placeholder - replace with actual turbo */}
-            <div className="relative w-full max-w-lg aspect-square">
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Placeholder turbo visualization */}
-                <div className="relative w-80 h-80">
-                  <div className="absolute inset-0 rounded-full border border-white/10" />
-                  <div className="absolute inset-4 rounded-full border border-white/10" />
-                  <div className="absolute inset-8 rounded-full border border-white/20" />
-                  <div className="absolute inset-12 rounded-full bg-gradient-to-br from-white/10 to-transparent" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-6xl">🔧</span>
-                  </div>
-                </div>
+            {/* Bottom left tagline */}
+            <div className="absolute bottom-24 left-16 flex items-center gap-4">
+              <div className="w-12 h-px bg-white/30" />
+              <div className="text-sm text-white/40">
+                <div>Profesionalni servis</div>
+                <div>turbopunjača</div>
               </div>
             </div>
           </div>
 
-          {/* Right: Content */}
-          <div className="space-y-8">
-            {/* Small label */}
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-px bg-white/30" />
-              <span className="text-xs text-white/50 uppercase tracking-widest">Novi Sad, Srbija</span>
-            </div>
-
-            {/* Headline */}
-            <div className="space-y-4">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight">
-                Remont i servis
-                <br />
-                <span className="text-white/40">turbopunjača</span>
+          {/* Right Side - Content */}
+          <div className="w-[400px] flex flex-col justify-center pr-16 py-24">
+            {/* Product Title */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-normal mb-1">
+                Remont turbopunjača
               </h2>
+              <span className="text-white/40 text-sm">( profesionalni servis )</span>
             </div>
 
             {/* Description */}
-            <p className="text-white/50 text-lg max-w-md leading-relaxed">
-              Stručna dijagnostika, profesionalni remont i balansiranje turbopunjača za sve tipove vozila. 
-              Preko 15 godina iskustva.
+            <p className="text-sm text-white/50 leading-relaxed mb-8">
+              Stručna dijagnostika, remont i balansiranje turbopunjača za sve tipove vozila. 
+              Koristimo originalnu opremu i delove uz garanciju na sve radove.
+              Preko 15 godina iskustva u industriji.
             </p>
 
-            {/* Stats row */}
-            <div className="flex items-center gap-8 py-4">
-              <div>
-                <div className="text-3xl font-light">15+</div>
-                <div className="text-xs text-white/40 uppercase tracking-wider">Godina iskustva</div>
-              </div>
-              <div className="w-px h-12 bg-white/10" />
-              <div>
-                <div className="text-3xl font-light">5000+</div>
-                <div className="text-xs text-white/40 uppercase tracking-wider">Servisa</div>
-              </div>
-              <div className="w-px h-12 bg-white/10" />
-              <div>
-                <div className="text-3xl font-light">2god</div>
-                <div className="text-xs text-white/40 uppercase tracking-wider">Garancija</div>
-              </div>
+            {/* Service dots */}
+            <div className="flex items-center gap-2 mb-10">
+              <div className="w-2 h-2 rounded-full bg-white" />
+              <div className="w-2 h-2 rounded-full bg-white/30" />
+              <div className="w-2 h-2 rounded-full bg-white/30" />
+              <div className="w-2 h-2 rounded-full bg-white/30" />
             </div>
 
-            {/* CTA */}
-            <div className="flex items-center gap-6 pt-4">
-              <a 
-                href="tel:+381631234567"
-                className="inline-flex items-center gap-3 bg-white text-[#1a1f2e] px-8 py-4 rounded-full text-sm font-medium hover:bg-white/90 transition-colors"
-              >
-                Zakažite termin
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </a>
-              <span className="text-sm text-white/40">ili pozovite: 063 123 4567</span>
-            </div>
+            {/* CTA Button */}
+            <a 
+              href="tel:+381631234567"
+              className="inline-flex items-center justify-center gap-2 border border-white/30 rounded-full px-8 py-3 text-sm hover:bg-white hover:text-[#1c2230] transition-all duration-300 w-fit"
+            >
+              Zakažite termin
+            </a>
           </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <span className="text-xs text-white/30 uppercase tracking-widest">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
         </div>
       </section>
 
-      {/* Services Section - Minimal preview */}
-      <section id="usluge" className="py-32 px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Services Section */}
+      <section id="usluge" className="py-32 px-8 lg:px-16 border-t border-white/10">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16">
+            <span className="text-sm text-white/40 uppercase tracking-widest">Usluge</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
-              { title: 'Dijagnostika', desc: 'Precizna dijagnostika kvara pomoću najnovije opreme' },
-              { title: 'Remont', desc: 'Kompletan remont sa originalnim delovima' },
-              { title: 'Balansiranje', desc: 'Profesionalno balansiranje do 200.000 o/min' },
-            ].map((service, i) => (
-              <div key={i} className="group p-8 border border-white/10 rounded-2xl hover:border-white/20 transition-colors">
-                <div className="text-sm text-white/30 mb-4">0{i + 1}</div>
+              { num: '01', title: 'Dijagnostika', desc: 'Precizna dijagnostika kvara pomoću najnovije opreme i alata' },
+              { num: '02', title: 'Remont', desc: 'Kompletan remont sa originalnim ili OEM delovima' },
+              { num: '03', title: 'Balansiranje', desc: 'Profesionalno balansiranje do 200.000 obrtaja u minuti' },
+            ].map((service) => (
+              <div key={service.num} className="group">
+                <div className="text-sm text-white/20 mb-4">{service.num}</div>
                 <h3 className="text-xl font-light mb-3">{service.title}</h3>
-                <p className="text-sm text-white/50">{service.desc}</p>
+                <p className="text-sm text-white/40 leading-relaxed">{service.desc}</p>
               </div>
             ))}
           </div>
@@ -164,31 +133,32 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="kontakt" className="py-32 px-8 border-t border-white/10">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-light mb-8">Kontaktirajte nas</h2>
-          <p className="text-white/50 mb-12 max-w-xl mx-auto">
-            Slobodno nas pozovite za besplatnu procenu ili zakažite termin za dijagnostiku.
-          </p>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+      <section id="kontakt" className="py-32 px-8 lg:px-16 border-t border-white/10">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-12">
+          <div>
+            <span className="text-sm text-white/40 uppercase tracking-widest block mb-6">Kontakt</span>
+            <h2 className="text-4xl font-light mb-4">Pozovite nas</h2>
+            <p className="text-white/40 max-w-md">
+              Besplatna procena i savet. Radimo sa svim tipovima vozila.
+            </p>
+          </div>
+          <div className="text-right">
             <a 
               href="tel:+381631234567"
-              className="flex items-center gap-3 text-2xl font-light hover:text-white/80 transition-colors"
+              className="text-3xl font-light hover:text-white/70 transition-colors block mb-2"
             >
-              <span className="w-3 h-3 bg-green-400 rounded-full" />
               063 123 4567
             </a>
-            <span className="text-white/20">|</span>
-            <span className="text-white/50">Novi Sad, Srbija</span>
+            <span className="text-white/40 text-sm">Novi Sad, Srbija</span>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-8 border-t border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-white/30">
-          <span>© 2024 Turbo Servis Novi Sad</span>
-          <span>Sva prava zadržana</span>
+      <footer className="py-8 px-8 lg:px-16 border-t border-white/10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between text-xs text-white/30">
+          <span>© 2024 Turbo Servis</span>
+          <span>Novi Sad</span>
         </div>
       </footer>
     </main>
