@@ -33,39 +33,36 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center">
+      <section className="relative h-screen flex items-center overflow-hidden">
         {/* Background brand text - positioned left */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none select-none">
-          <h1 
-            className="text-[28vw] font-bold leading-[0.85] tracking-tighter text-white/[0.07]"
-            style={{ marginLeft: '-2vw' }}
-          >
+        <div className="absolute left-[-5vw] top-1/2 -translate-y-1/2 pointer-events-none select-none z-0">
+          <h1 className="text-[20vw] font-bold leading-[0.85] tracking-tighter text-white/[0.06]">
             Turbo
           </h1>
         </div>
 
         {/* Main Content Container */}
-        <div className="relative z-10 w-full min-h-screen flex">
+        <div className="relative z-10 w-full h-full flex items-center max-w-7xl mx-auto px-8 lg:px-16">
           
-          {/* Left Side - Product Image (overlapping text) */}
+          {/* Left Side - Product Image */}
           <div className="flex-1 relative flex items-center justify-center">
-            {/* Turbo Image */}
-            <div className="relative w-[60vw] max-w-2xl aspect-square ml-[10vw]">
+            {/* Turbo Image - contained size */}
+            <div className="relative w-[500px] h-[500px]">
               <Image
                 src="/images/turbo.png"
                 alt="Turbocharger"
                 fill
-                className="object-contain drop-shadow-2xl"
+                className="object-contain"
                 style={{ 
-                  filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.5))',
-                  transform: 'rotate(-15deg) scale(1.1)'
+                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))',
+                  transform: 'rotate(-10deg)'
                 }}
                 priority
               />
             </div>
             
             {/* Bottom left tagline */}
-            <div className="absolute bottom-24 left-16 flex items-center gap-4">
+            <div className="absolute bottom-12 left-0 flex items-center gap-4">
               <div className="w-12 h-px bg-white/30" />
               <div className="text-sm text-white/40">
                 <div>Profesionalni servis</div>
@@ -75,7 +72,7 @@ export default function Home() {
           </div>
 
           {/* Right Side - Content */}
-          <div className="w-[400px] flex flex-col justify-center pr-16 py-24">
+          <div className="w-[380px] flex-shrink-0">
             {/* Product Title */}
             <div className="mb-6">
               <h2 className="text-2xl font-normal mb-1">
@@ -102,7 +99,7 @@ export default function Home() {
             {/* CTA Button */}
             <a 
               href="tel:+381631234567"
-              className="inline-flex items-center justify-center gap-2 border border-white/30 rounded-full px-8 py-3 text-sm hover:bg-white hover:text-[#1c2230] transition-all duration-300 w-fit"
+              className="inline-flex items-center justify-center border border-white/30 rounded-full px-8 py-3 text-sm hover:bg-white hover:text-[#1c2230] transition-all duration-300"
             >
               Zakažite termin
             </a>
