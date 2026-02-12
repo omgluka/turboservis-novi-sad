@@ -100,17 +100,20 @@ export default function ProcessScroll() {
                 <div className="w-full lg:w-1/2 h-[60vh] lg:h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-20 z-10 relative bg-[#f0f0f0] border-b lg:border-r lg:border-b-0 border-black/5">
 
                     {/* Vertical Progress Line (Left on mobile, Right on desktop) */}
-                    <div className="absolute left-6 sm:left-12 lg:left-auto lg:right-[-1px] top-1/2 -translate-y-1/2 h-[50%] w-[2px] bg-gray-100">
-                        {/* Red Fill Line */}
-                        <div
-                            className="absolute top-0 left-0 w-full bg-[#d00000] transition-all duration-100 ease-linear shadow-[0_0_15px_rgba(208,0,0,0.4)]"
-                            style={{
-                                height: `${progress * 100}%`
-                            }}
-                        />
+                    <div className="absolute left-6 sm:left-12 lg:left-auto lg:right-[-4px] top-1/2 -translate-y-1/2 h-[50%] w-3 lg:w-4 z-20">
+                        {/* The "Groove" (Track) */}
+                        <div className="absolute inset-0 rounded-full neumorphic-pressed overflow-hidden">
+                            {/* Red Fill Line */}
+                            <div
+                                className="absolute top-0 left-0 w-full bg-[#d00000] transition-all duration-100 ease-linear shadow-[0_0_20px_rgba(208,0,0,0.6)] rounded-full"
+                                style={{
+                                    height: `${progress * 100}%`
+                                }}
+                            />
+                        </div>
 
-                        {/* Centered Dots for Steps */}
-                        <div className="absolute inset-0 flex flex-col justify-between items-center">
+                        {/* Centered Dots for Steps (Outside the clipping groove) */}
+                        <div className="absolute inset-x-0 inset-y-0 flex flex-col justify-between items-center z-30">
                             {steps.map((_, i) => {
                                 // Determine if dot should be active (red)
                                 const dotPosition = i / (steps.length - 1)
@@ -119,8 +122,14 @@ export default function ProcessScroll() {
                                 return (
                                     <div
                                         key={i}
-                                        className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-500 z-10 ${isActive ? 'bg-[#d00000] border-[#d00000] scale-125' : 'bg-[#f0f0f0] border-black/10 neumorphic-pressed'}`}
-                                    />
+                                        className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full transition-all duration-500 flex items-center justify-center relative translate-x-0
+                                            ${isActive
+                                                ? 'bg-[#d00000] border-4 border-[#f0f0f0] scale-110 shadow-[0_0_15px_rgba(208,0,0,0.4)]'
+                                                : 'bg-[#f0f0f0] border-2 border-black/5 neumorphic-flat shadow-sm'
+                                            }`}
+                                    >
+                                        {!isActive && <div className="w-1.5 h-1.5 rounded-full bg-black/10" />}
+                                    </div>
                                 )
                             })}
                         </div>
