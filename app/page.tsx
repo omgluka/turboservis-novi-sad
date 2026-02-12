@@ -207,7 +207,7 @@ export default function Home() {
         {/* ==================== PROCESS SECTION ==================== */}
         <section className="pt-20 pb-0 px-6">
           <div className="max-w-[80rem] mx-auto text-center">
-            <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter mb-4 text-black uppercase">
+            <h2 className="text-4xl sm:text-5xl font-black tracking-tighter mb-4 text-black uppercase">
               Kako izgleda <span className="text-[#d00000]">proces:</span>
             </h2>
           </div>
