@@ -1,602 +1,442 @@
-'use client'
-
-import { useEffect, useRef, useState } from 'react'
-import { Logo, TurboIcon, SpinningTurbo } from '@/components/Logo'
-import { ExplodedTurbo, TurboSpecs } from '@/components/ExplodedTurbo'
-
-// ============================================
-// COMPONENTS
-// ============================================
-
-// Before/After Slider
-function BeforeAfterSlider() {
-  const [sliderPosition, setSliderPosition] = useState(50)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isDragging = useRef(false)
-
-  const handleMove = (clientX: number) => {
-    if (!containerRef.current || !isDragging.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const x = clientX - rect.left
-    const percentage = Math.min(Math.max((x / rect.width) * 100, 0), 100)
-    setSliderPosition(percentage)
-  }
-
-  useEffect(() => {
-    const handleUp = () => { isDragging.current = false }
-    window.addEventListener('mouseup', handleUp)
-    window.addEventListener('touchend', handleUp)
-    return () => {
-      window.removeEventListener('mouseup', handleUp)
-      window.removeEventListener('touchend', handleUp)
-    }
-  }, [])
-
-  return (
-    <div 
-      ref={containerRef}
-      className="relative aspect-[16/9] rounded-2xl overflow-hidden select-none cursor-ew-resize group"
-      onMouseDown={() => { isDragging.current = true }}
-      onMouseMove={(e) => handleMove(e.clientX)}
-      onTouchStart={() => { isDragging.current = true }}
-      onTouchMove={(e) => handleMove(e.touches[0].clientX)}
-    >
-      {/* Before */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700">
-              <span className="text-5xl grayscale opacity-40">⚙️</span>
-            </div>
-            <p className="font-display text-2xl text-zinc-500">OŠTEĆENA</p>
-            <p className="text-zinc-600 text-sm mt-2">Gubitak snage · Dim · Buka</p>
-          </div>
-        </div>
-      </div>
-      
-      {/* After */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-br from-[#1a1512] via-[#0f0d0b] to-[#0a0a0a]"
-        style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
-      >
-        <div className="absolute inset-0 bg-[#c45c26]/5" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#c45c26]/20 to-transparent flex items-center justify-center border border-[#c45c26]/30 glow-rust">
-              <SpinningTurbo className="w-16 h-16" color="#c45c26" />
-            </div>
-            <p className="font-display text-2xl text-[#c45c26] text-glow">OBNOVLJENA</p>
-            <p className="text-zinc-400 text-sm mt-2">Puna snaga · Tihi rad · Garancija</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Slider */}
-      <div 
-        className="absolute top-0 bottom-0 w-1 bg-[#c45c26] z-20"
-        style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
-      >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-[#c45c26] rounded-full flex items-center justify-center shadow-2xl border-4 border-white/10 group-hover:scale-110 transition-transform">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Labels */}
-      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-medium tracking-widest text-zinc-400">PRE</div>
-      <div className="absolute top-4 right-4 bg-[#c45c26] px-4 py-2 rounded-full text-xs font-medium tracking-widest text-white">POSLE</div>
-    </div>
-  )
-}
-
-// Service Card
-function ServiceCard({ icon, title, description, features, index }: { 
-  icon: string; title: string; description: string; features: string[]; index: number 
-}) {
-  return (
-    <div 
-      className="group relative bg-gradient-to-b from-zinc-900/80 to-zinc-900/40 backdrop-blur border border-zinc-800/50 rounded-2xl p-8 hover:border-[#c45c26]/30 transition-all duration-500 reveal"
-      style={{ transitionDelay: `${index * 100}ms` }}
-    >
-      {/* Number */}
-      <div className="absolute top-6 right-6 font-display text-5xl text-zinc-800 group-hover:text-[#c45c26]/20 transition-colors">
-        0{index + 1}
-      </div>
-      
-      {/* Icon */}
-      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#c45c26]/20 to-transparent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-        <span className="text-3xl">{icon}</span>
-      </div>
-      
-      {/* Content */}
-      <h3 className="font-display text-2xl text-[#f5f0e8] mb-3 group-hover:text-[#c45c26] transition-colors">{title}</h3>
-      <p className="text-zinc-500 leading-relaxed mb-6">{description}</p>
-      
-      {/* Features */}
-      <ul className="space-y-3">
-        {features.map((feature, i) => (
-          <li key={i} className="flex items-center gap-3 text-sm">
-            <div className="w-5 h-5 rounded-full bg-[#c45c26]/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-[#c45c26] text-xs">✓</span>
-            </div>
-            <span className="text-zinc-400">{feature}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-// Process Step
-function ProcessStep({ number, title, description, isLast }: { 
-  number: string; title: string; description: string; isLast?: boolean 
-}) {
-  return (
-    <div className="relative flex gap-6">
-      {/* Line */}
-      {!isLast && (
-        <div className="absolute left-6 top-14 bottom-0 w-px bg-gradient-to-b from-[#c45c26]/50 to-transparent" />
-      )}
-      
-      {/* Number */}
-      <div className="w-12 h-12 rounded-full bg-[#c45c26] flex items-center justify-center flex-shrink-0 font-display text-xl text-white shadow-lg glow-rust">
-        {number}
-      </div>
-      
-      {/* Content */}
-      <div className="pb-12">
-        <h4 className="font-display text-xl text-[#f5f0e8] mb-2">{title}</h4>
-        <p className="text-zinc-500 text-sm leading-relaxed">{description}</p>
-      </div>
-    </div>
-  )
-}
-
-// Scroll reveal hook
-function useScrollReveal() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible')
-      }),
-      { threshold: 0.1 }
-    )
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
-    return () => observer.disconnect()
-  }, [])
-}
-
-// ============================================
-// PAGE
-// ============================================
+import Image from 'next/image'
+import Link from 'next/link'
+import Logo from '@/components/Logo'
+import ProcessScroll from '@/components/ProcessScroll'
+import ContactForm from '@/components/ContactForm'
 
 export default function Home() {
-  useScrollReveal()
-
   return (
     <>
-      {/* Film grain */}
-      <div className="grain" />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'AutoRepair',
+            name: 'Turbo Servis Novi Sad',
+            image: 'https://turboservis-novisad.rs/turbo.png', // Placeholder URL
+            description: 'Profesionalni servis i remont turbo kompresora u Novom Sadu.',
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: 'Svetih Arhanđela 9',
+              addressLocality: 'Veternik',
+              addressRegion: 'Novi Sad',
+              postalCode: '21203',
+              addressCountry: 'RS'
+            },
+            telephone: '+381637725026',
+            openingHoursSpecification: [
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                opens: '08:00',
+                closes: '17:00'
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'Saturday',
+                opens: '08:00',
+                closes: '13:00'
+              }
+            ]
+          })
+        }}
+      />
 
-      {/* ==================== HERO ==================== */}
-      <section className="min-h-screen flex items-center relative overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
-        
-        {/* Gradient orbs */}
-        <div className="absolute top-1/4 left-0 w-[600px] h-[600px] bg-[#c45c26]/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[#c45c26]/5 rounded-full blur-[120px]" />
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{ 
-          backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
+      <main className="min-h-screen">
+        {/* ==================== HERO MINIMAL ==================== */}
+        <section className="min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 pt-40 w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left - Content */}
-            <div>
-              <div className="inline-flex items-center gap-2 bg-[#c45c26]/10 border border-[#c45c26]/20 rounded-full px-4 py-2 mb-8 animate-fade-in opacity-0">
-                <span className="w-2 h-2 bg-[#c45c26] rounded-full animate-pulse" />
-                <span className="text-[#c45c26] text-sm font-medium tracking-wide">VETERNIK, NOVI SAD</span>
+          <div className="max-w-[80rem] w-full grid lg:grid-cols-2 gap-8 lg:gap-24 items-center">
+
+            {/* Left: Typography */}
+            <div className="relative z-10 flex flex-col justify-center items-center lg:items-start text-center lg:text-left pt-8 lg:pt-0 lg:-mt-[160px]">
+              {/* Massive Logo Landing (3x Mobile, 5x Desktop) */}
+              <div className="w-full flex justify-center lg:justify-start mb-6 lg:mb-12 transform-gpu hover:scale-105 transition-transform duration-500">
+                <Logo className="w-[110px] sm:w-[195px] lg:w-[235px] xl:w-[294px]" />
               </div>
-              
-              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-[#f5f0e8] leading-[0.9] animate-fade-in-up opacity-0 animate-delay-100">
-                STRUČAN<br />
-                <span className="text-[#c45c26]">REMONT</span><br />
-                TURBINA
+
+              <div className="flex items-center gap-3 py-2 px-6 bg-black/5 neumorphic-pressed rounded-full mb-6 lg:mb-8">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span className="text-[10px] font-black tracking-widest uppercase text-black/40">
+                  Novi Sad, Veternik
+                </span>
+              </div>
+              <h1 className="font-swiss text-4xl sm:text-6xl lg:text-[5rem] xl:text-[6.8rem] leading-[0.9] tracking-tight mb-6 lg:mb-8 text-black font-black uppercase">
+                TURBO SERVIS<br />
+                <span className="text-[#d00000]">NOVI SAD</span>
               </h1>
-              
-              <p className="mt-8 text-lg text-zinc-400 max-w-md leading-relaxed animate-fade-in-up opacity-0 animate-delay-200">
-                Profesionalna dijagnostika i remont turbo kompresora za sva vozila. 
-                <span className="text-[#f5f0e8]"> Preko 10 godina iskustva.</span>
+              <p className="max-w-md text-lg lg:text-xl text-black/60 leading-relaxed font-medium mb-8 lg:mb-10">
+                Profesionalna dijagnostika i remont turbo kompresora za sva vozila.
+                <span className="block text-[#d00000] mt-2 font-bold uppercase tracking-wider text-sm">Garancija 12 meseci.</span>
               </p>
-              
-              {/* Stats inline */}
-              <div className="flex gap-8 mt-8 animate-fade-in-up opacity-0 animate-delay-300">
-                <div>
-                  <div className="font-display text-3xl text-[#c45c26]">10+</div>
-                  <div className="text-xs text-zinc-600 tracking-wider">GODINA</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl text-[#c45c26]">1000+</div>
-                  <div className="text-xs text-zinc-600 tracking-wider">SERVISA</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl text-[#c45c26]">12</div>
-                  <div className="text-xs text-zinc-600 tracking-wider">MES. GARANCIJE</div>
-                </div>
-              </div>
-              
-              {/* CTA */}
-              <div className="mt-10 flex flex-wrap gap-4 animate-fade-in-up opacity-0 animate-delay-400">
-                <a 
-                  href="#kontakt" 
-                  className="group bg-[#c45c26] hover:bg-[#d46a34] text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:scale-105 flex items-center gap-3"
+
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 lg:gap-6">
+                <Link
+                  href="#kontakt"
+                  className="px-8 lg:px-10 py-4 lg:py-5 neumorphic-button-red text-white rounded-2xl text-xs lg:text-sm font-black tracking-widest uppercase transform-gpu transition-all shadow-[8px_8px_16px_rgba(208,0,0,0.3),-8px_-8px_16px_#ffffff]"
                 >
                   Zakažite Pregled
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </a>
-                <a 
-                  href="tel:+381637725026" 
-                  className="border border-zinc-700 hover:border-[#c45c26] text-[#f5f0e8] px-8 py-4 rounded-xl font-semibold text-lg transition-all flex items-center gap-3"
+                </Link>
+                <Link
+                  href="tel:+381637725026"
+                  className="px-8 lg:px-10 py-4 lg:py-5 neumorphic-button text-black rounded-2xl text-xs lg:text-sm font-black tracking-widest uppercase transform-gpu transition-all"
                 >
-                  <span className="text-[#c45c26]">📞</span> 063 772 5026
-                </a>
+                  063 772 5026
+                </Link>
               </div>
             </div>
 
-            {/* Right - Visual */}
-            <div className="hidden lg:block animate-fade-in opacity-0 animate-delay-500">
-              <div className="relative">
-                {/* Glow */}
-                <div className="absolute inset-0 bg-[#c45c26]/20 rounded-full blur-[100px] scale-75" />
-                
-                {/* Badge */}
-                <div className="relative">
-                  <Logo className="w-full max-w-md mx-auto" variant="full" color="light" />
-                </div>
-                
-                {/* Floating elements */}
-                <div className="absolute -top-8 -right-8 w-20 h-20 bg-zinc-900/80 backdrop-blur rounded-xl border border-zinc-800 flex items-center justify-center animate-float">
-                  <span className="text-3xl">🔧</span>
-                </div>
-                <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-zinc-900/80 backdrop-blur rounded-xl border border-zinc-800 flex items-center justify-center animate-float" style={{ animationDelay: '1s' }}>
-                  <span className="text-2xl">⚙️</span>
-                </div>
+            {/* Right: Clean Visual - MASSIVE */}
+            <div className="flex items-center justify-center relative lg:scale-[1.2] xl:scale-[1.45] transition-transform duration-1000 ease-out z-0 w-[85%] sm:w-[80%] md:w-[70%] mx-auto lg:w-full max-h-[35vh] lg:max-h-none">
+              <div className="relative w-full aspect-square lg:translate-x-12">
+                <Image
+                  src="/images/hero-turbo-3.webp"
+                  alt="Visokokvalitetni turbo kompresor - remont i servis"
+                  fill
+                  className="object-contain drop-shadow-[0_40px_100px_rgba(0,0,0,0.15)]"
+                  priority
+                />
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <div className="flex flex-col items-center gap-2 text-zinc-600">
-            <span className="text-xs tracking-widest">SCROLL</span>
-            <div className="w-px h-8 bg-gradient-to-b from-zinc-600 to-transparent" />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== SERVICES ==================== */}
-      <section id="usluge" className="py-24 bg-[#0a0a0a] relative">
-        <div className="max-w-7xl mx-auto px-6">
-          {/* Header */}
-          <div className="max-w-2xl mb-16 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">USLUGE</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8] mb-6">ŠTA RADIMO</h2>
-            <p className="text-zinc-500 leading-relaxed">
-              Pružamo kompletan servis turbo kompresora — od dijagnostike do potpunog remonta. 
-              Radimo sa svim tipovima vozila i svim brendovima turbina.
-            </p>
-          </div>
-          
-          {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <ServiceCard
-              icon="🔧"
-              title="REMONT TURBINE"
-              description="Kompletan remont turbo kompresora sa zamenom ležajeva, karika i balansiranjem rotora."
-              features={['Zamena ležajeva i karika', 'Balansiranje rotora', 'Kompletna obnova', 'Garancija 12 meseci']}
-              index={0}
-            />
-            <ServiceCard
-              icon="🔍"
-              title="DIJAGNOSTIKA"
-              description="Stručna dijagnostika i utvrđivanje problema. Besplatna procena pre bilo kakvog rada."
-              features={['Vizuelni pregled', 'Test pritiska', 'Analiza stanja', 'Besplatna procena']}
-              index={1}
-            />
-            <ServiceCard
-              icon="⚙️"
-              title="ZAMENA DELOVA"
-              description="Ugradnja originalnih i kvalitetnih zamenskih delova sa punom garancijom."
-              features={['Originalni delovi', 'Kvalitetne zamene', 'Stručna ugradnja', 'Garancija na delove']}
-              index={2}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== BEFORE/AFTER ==================== */}
-      <section className="py-24 bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f]">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">REZULTAT</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8]">PRE I POSLE</h2>
-          </div>
-          <div className="reveal">
-            <BeforeAfterSlider />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== TURBO ANATOMY (Light Section) ==================== */}
-      <section className="py-24 bg-[#f5f0e8] relative overflow-hidden">
-        {/* Sunburst */}
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] aspect-square" 
-               style={{ background: 'repeating-conic-gradient(from 0deg, #c45c26 0deg 5deg, transparent 5deg 10deg)' }} />
-        </div>
-        
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-12 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">TEHNOLOGIJA</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#1a1a1a]">ANATOMIJA TURBINE</h2>
-            <p className="text-zinc-600 mt-4 max-w-xl mx-auto">Pređite preko delova da saznate više o komponentama turbo kompresora</p>
-          </div>
-          
-          <div className="reveal">
-            <ExplodedTurbo className="h-[280px] sm:h-[350px] max-w-3xl mx-auto" />
-          </div>
-          
-          <div className="mt-16 reveal">
-            <TurboSpecs />
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== PROCESS ==================== */}
-      <section className="py-24 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            {/* Left - Content */}
-            <div className="reveal">
-              <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">PROCES</p>
-              <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8] mb-6">KAKO RADIMO</h2>
-              <p className="text-zinc-500 leading-relaxed mb-12">
-                Od prvog kontakta do predaje vozila — transparentan proces bez skrivenih troškova. 
-                Znate tačno šta se radi i koliko košta.
-              </p>
-              
-              <ProcessStep 
-                number="1" 
-                title="DIJAGNOSTIKA" 
-                description="Besplatan pregled i procena stanja turbine. Dobijate detaljan izveštaj pre bilo kakvog rada."
-              />
-              <ProcessStep 
-                number="2" 
-                title="PONUDA" 
-                description="Transparentna ponuda sa tačnom cenom. Bez skrivenih troškova. Radimo tek nakon vaše saglasnosti."
-              />
-              <ProcessStep 
-                number="3" 
-                title="REMONT" 
-                description="Stručan remont sa kvalitetnim delovima. Rok izrade 1-3 radna dana."
-              />
-              <ProcessStep 
-                number="4" 
-                title="GARANCIJA" 
-                description="12 meseci garancije na sve radove. Tu smo i posle servisa za sva pitanja."
-                isLast
-              />
-            </div>
-            
-            {/* Right - Image placeholder */}
-            <div className="reveal">
-              <div className="aspect-[4/5] bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-zinc-800/50 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5" style={{ 
-                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.05) 30px, rgba(255,255,255,0.05) 60px)' 
-                }} />
-                <div className="text-center p-8">
-                  <Logo className="w-40 h-40 mx-auto mb-4 opacity-50" variant="full" color="light" />
-                  <p className="text-zinc-600 text-sm">Fotografija radionice</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== FAQ ==================== */}
-      <section className="py-24 bg-[#0f0f0f]">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-16 reveal">
-            <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">FAQ</p>
-            <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8]">ČESTA PITANJA</h2>
-          </div>
-          
-          <div className="space-y-4">
+        {/* ==================== STATS FLOATING ==================== */}
+        <section className="py-12 px-6">
+          <div className="max-w-[80rem] mx-auto neumorphic-flat grid grid-cols-2 md:grid-cols-4 gap-0 overflow-hidden border-none transition-all duration-500">
             {[
-              { q: 'Koliko traje remont turbine?', a: 'Standardni remont traje 1-3 radna dana. Za hitne slučajeve nudimo ubrzanu uslugu istog ili sledećeg dana.' },
-              { q: 'Da li dajete garanciju na remont?', a: 'Da, na sve radove i ugrađene delove dajemo garanciju od 12 meseci bez ograničenja kilometraže.' },
-              { q: 'Koje brendove turbina servisirate?', a: 'Radimo sa svim brendovima: Garrett, BorgWarner, Holset, IHI, Mitsubishi, KKK, i drugima.' },
-              { q: 'Kako da znam da mi turbina treba remont?', a: 'Najčešći znaci: gubitak snage motora, crni ili plavi dim, zviždanje ili neobičan zvuk, povećana potrošnja ulja.' },
-              { q: 'Da li radite sa teretnim vozilima?', a: 'Da, servisiramo turbo kompresore za sva vozila — putnička, teretna, autobuse, radne mašine i poljoprivrednu mehanizaciju.' },
-            ].map((item, i) => (
-              <div 
-                key={i} 
-                className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-6 reveal hover:border-[#c45c26]/20 transition-colors"
-                style={{ transitionDelay: `${i * 50}ms` }}
+              { number: '10+', label: 'Godina Iskustva' },
+              { number: '1-3', label: 'Dana Rok Izrade' },
+              { number: '12', label: 'Meseci Garancije' },
+              { number: '100%', label: 'Originalni Delovi' }
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className={`p-10 text-center transition-colors hover:bg-black/[0.02] border-black/5
+                  ${i < 3 ? 'md:border-r' : ''} 
+                  ${i % 2 === 0 ? 'border-r md:border-r-none' : ''}
+                  ${i < 2 ? 'border-b md:border-b-0' : ''}
+                `}
               >
-                <h3 className="font-semibold text-[#f5f0e8] mb-3">{item.q}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">{item.a}</p>
+                <div className="text-4xl lg:text-5xl font-swiss font-black text-black mb-2 tracking-tighter">
+                  {stat.number}
+                </div>
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ==================== CONTACT ==================== */}
-      <section id="kontakt" className="py-24 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-5 gap-12">
-            {/* Left - Info */}
-            <div className="lg:col-span-2 reveal">
-              <p className="text-[#c45c26] font-display text-lg mb-4 tracking-widest">KONTAKT</p>
-              <h2 className="font-display text-4xl sm:text-5xl text-[#f5f0e8] mb-6">JAVITE NAM SE</h2>
-              <p className="text-zinc-500 leading-relaxed mb-10">
-                Pozovite nas za besplatnu procenu ili pošaljite upit. Odgovaramo u roku od nekoliko sati.
+        {/* ==================== STATS BANNER ==================== */}
+        <section className="p-0 m-0">
+          <div className="w-full relative h-[300px] sm:h-[400px] lg:h-[700px] overflow-hidden">
+            <Image
+              src="/images/segment-2-vehicles.webp"
+              alt="Servis turbina za automobile, kombi vozila i kamione"
+              fill
+              className="object-contain"
+            />
+          </div>
+        </section>
+
+        {/* ==================== SERVICES GLASS ==================== */}
+        <section id="usluge" className="py-20 px-6">
+          <div className="max-w-[80rem] mx-auto">
+            <div className="grid md:grid-cols-3 gap-6">
+
+              {/* Intro Cell - Clean Neumorphic */}
+              <div className="neumorphic-flat p-10 md:p-12 flex flex-col justify-center items-center md:items-start text-center md:text-left border-none">
+                <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-6 uppercase text-black leading-tight">
+                  Šta<br className="hidden md:block" /> Radimo
+                </h2>
+                <p className="text-black/60 text-lg leading-relaxed font-medium">
+                  Pružamo kompletan servis turbo kompresora — od dijagnostike do potpunog remonta.
+                </p>
+              </div>
+
+              {/* Service Cells - Clean Neumorphic */}
+              {[
+                {
+                  title: 'Putnički Program',
+                  desc: 'Kompletan servis i remont turbina za sva putnička i laka komercijalna vozila (automobili, kombi vozila).',
+                  features: ['Precizno balansiranje', 'Originalni setovi delova', 'Brza isporuka'],
+                  tag: 'Najtraženije'
+                },
+                {
+                  title: 'Teretni Program',
+                  desc: 'Specijalizovan servis turbokompresora za kamione, autobuse i teška transportna vozila.',
+                  features: ['Vrhunska izdržljivost', 'Garancija na rad', 'Sva renomirana imena'],
+                  tag: 'Heavy Duty'
+                }
+              ].map((service, i) => (
+                <div key={i} className="neumorphic-flat p-10 flex flex-col justify-start items-center text-center md:items-start md:text-left group cursor-default transition-transform duration-300 hover:-translate-y-1 border-none">
+                  <div className="w-full">
+                    <div className="flex items-center gap-3 mb-6 justify-center md:justify-start">
+                      <span className="w-2.5 h-2.5 bg-[#d00000] rounded-full shadow-[0_0_10px_rgba(208,0,0,0.5)]" />
+                      <span className="text-[10px] font-black tracking-[0.2em] text-black/30 uppercase">
+                        {service.tag}
+                      </span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-black tracking-tighter mb-4 text-black group-hover:text-[#d00000] transition-colors uppercase">
+                      {service.title}
+                    </h3>
+                    <p className="text-black/60 font-medium leading-relaxed mb-8">
+                      {service.desc}
+                    </p>
+                    <ul className="space-y-3 flex flex-col items-center md:items-start">
+                      {service.features.map((feature, f) => (
+                        <li key={f} className="text-xs font-black text-black/40 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-black/10 rounded-full" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ==================== PROCESS SECTION ==================== */}
+        <section className="pt-20 pb-0 px-6">
+          <div className="max-w-[80rem] mx-auto text-center">
+            <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter mb-4 text-black uppercase">
+              Kako izgleda <span className="text-[#d00000]">proces:</span>
+            </h2>
+          </div>
+        </section>
+        <ProcessScroll />
+
+        {/* ==================== FAQ SECTION ==================== */}
+        <section className="py-16 px-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tighter mb-4 text-black uppercase">Česta Pitanja</h2>
+              <p className="text-black/40 text-lg font-medium">Odgovori na najčešća pitanja klijenta.</p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { q: 'Koliko traje remont turbine?', a: 'Standardni remont traje 1-3 radna dana. Za hitne slučajeve nudimo ubrzanu uslugu istog ili sledećeg dana.' },
+                { q: 'Da li dajete garanciju na remont?', a: 'Da, na sve radove i ugrađene delove dajemo garanciju od 12 meseci bez ograničenja kilometraže.' },
+                { q: 'Koje brendove turbina servisirate?', a: 'Radimo sa svim brendovima: Garrett, BorgWarner, Holset, IHI, Mitsubishi, KKK, i drugima.' },
+                { q: 'Kako da znam da mi turbina treba remont?', a: 'Najčešći znaci: gubitak snage motora, crni ili plavi dim, zviždanje ili neobičan zvuk, povećana potrošnja ulja.' },
+                { q: 'Da li radite sa teretnim vozilima?', a: 'Da, servisiramo turbo kompresore za sva vozila — putnička, teretna, autobuse, radne mašine i poljoprivrednu mehanizaciju.' }
+              ].map((faq, i) => (
+                <div key={i} className="neumorphic-flat p-6 lg:p-8 group transition-all duration-300 text-center md:text-left">
+                  <h3 className="text-xl font-black mb-3 text-black group-hover:text-[#d00000] transition-colors">{faq.q}</h3>
+                  <p className="text-black/60 font-medium leading-relaxed text-sm md:text-base">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ==================== CONTACT GLASS ==================== */}
+        <section id="kontakt" className="py-16 px-6">
+          <div className="max-w-[80rem] mx-auto grid lg:grid-cols-2 gap-8">
+
+            {/* Left: Info Card */}
+            <div className="neumorphic-flat p-8 lg:p-12 flex flex-col justify-between">
+              <div className="text-center lg:text-left">
+                <span className="block text-xs font-black tracking-[0.2em] mb-8 uppercase text-[#d00000]">
+                  Kontakt
+                </span>
+                <h2 className="text-4xl lg:text-5xl font-black tracking-tighter mb-12 text-black uppercase leading-tight">
+                  Stupite u<br className="hidden lg:block" /> Kontakt
+                </h2>
+
+                <div className="space-y-6 lg:space-y-8 text-left">
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Svetih+Arhanđela+9,+Veternik"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-6 p-5 rounded-2xl neumorphic-pressed hover:scale-[1.02] transition-transform group cursor-pointer block"
+                  >
+                    <div className="w-14 h-14 rounded-2xl neumorphic-button bg-white flex items-center justify-center shadow-sm text-[#d00000] group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-black/30 mb-1">Adresa</p>
+                      <p className="font-black text-black">Svetih Arhanđela 9, Veternik</p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="tel:+381637725026"
+                    className="flex items-center gap-6 p-5 rounded-2xl neumorphic-pressed hover:scale-[1.02] transition-transform group cursor-pointer block"
+                  >
+                    <div className="w-14 h-14 rounded-2xl neumorphic-button bg-white flex items-center justify-center shadow-sm text-[#d00000] group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-black/30 mb-1">Telefon</p>
+                      <p className="font-black text-black">063 772 5026</p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="mailto:info@turboservis.net"
+                    className="flex items-center gap-6 p-5 rounded-2xl neumorphic-pressed hover:scale-[1.02] transition-transform group cursor-pointer block"
+                  >
+                    <div className="w-14 h-14 rounded-2xl neumorphic-button bg-white flex items-center justify-center shadow-sm text-[#d00000] group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-black/30 mb-1">Email</p>
+                      <p className="font-black text-black">info@turboservis.net</p>
+                    </div>
+                  </a>
+
+                  <div className="flex items-center gap-6 p-5 rounded-2xl neumorphic-pressed">
+                    <div className="w-14 h-14 rounded-2xl neumorphic-button bg-white flex items-center justify-center shadow-sm text-[#d00000]">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-black/30 mb-1">Radno Vreme</p>
+                      <div className="flex flex-col">
+                        <p className="font-black text-black">Pon-Pet: 08-17h</p>
+                        <p className="text-sm font-black text-black/30">Subota: 08-13h</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 rounded-3xl overflow-hidden shadow-sm h-[200px] neumorphic-pressed p-2">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2808.647190035071!2d19.7548819!3d45.2548819!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b11900a0d649d%3A0x6a1a1b0a0b0a0b0a!2sSvetih%20Arhan%C4%91ela%209%2C%20Veternik%2021203!5e0!3m2!1sen!2srs!4v1620000000000!5m2!1sen!2srs"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+
+            {/* Right: Form Card */}
+            <ContactForm />
+          </div>
+        </section>
+
+        {/* ==================== CTA SECTION ==================== */}
+        <section className="py-16 lg:py-24 px-6 overflow-hidden">
+          <div className="max-w-[85rem] mx-auto">
+            <div className="relative neumorphic-flat px-8 md:px-20 py-16 flex flex-col lg:flex-row items-center justify-between gap-12 border-none">
+
+              {/* Left Content: Typography & Buttons */}
+              <div className="w-full lg:w-3/5 relative z-10 text-center lg:text-left">
+                <h2 className="text-5xl md:text-7xl font-black text-black leading-[1.0] tracking-tighter mb-8 uppercase">
+                  PROBLEMI SA <br />
+                  <span className="text-[#d00000]">TURBINOM?</span>
+                </h2>
+
+                {/* Mobile-only Turbo Image (Right under headline) */}
+                <div className="lg:hidden w-full flex justify-center mb-10 overflow-visible h-48 sm:h-64 relative">
+                  <div className="relative w-full max-w-[320px] aspect-square transform-gpu transition-all duration-1000 ease-out z-20">
+                    <Image
+                      src="/images/CTA.webp"
+                      alt="Turbo Service Premium"
+                      fill
+                      className="object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.1)]"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xl text-black/60 font-medium mb-12 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                  Pozovite nas za <span className="text-black font-black">besplatnu dijagnostiku</span> i stručan savet. Ne čekajte da problem postane veći.
+                </p>
+
+                <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+                  <Link
+                    href="tel:+381637725026"
+                    className="flex items-center gap-4 neumorphic-button-red text-white px-10 py-5 rounded-2xl transition-all shadow-[8px_8px_16px_rgba(208,0,0,0.3),-8px_-8px_16px_#ffffff] group"
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" className="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.21-2.21a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                    </div>
+                    <div className="text-left">
+                      <div className="text-[10px] font-black uppercase tracking-wider opacity-60">Pozovite odmah</div>
+                      <div className="text-xl font-black">063 772 5026</div>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="#kontakt"
+                    className="flex items-center gap-4 neumorphic-button text-black px-10 py-5 rounded-2xl transition-all group"
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center text-[#d00000]">
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                    </div>
+                    <div className="text-left">
+                      <div className="text-[10px] font-black uppercase tracking-wider opacity-40">Lokacija</div>
+                      <div className="text-xl font-black">Veternik, NS</div>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Content: Overflowing Turbo Image (Desktop only) */}
+              <div className="hidden lg:flex w-full lg:w-2/5 justify-center lg:justify-end relative lg:h-auto overflow-visible">
+                {/* Background Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#1a3a5e]/5 rounded-full blur-[100px] pointer-events-none" />
+
+                {/* Enlarged Overflowing Turbo */}
+                <div className="relative w-full max-w-[500px] aspect-square lg:scale-[1.6] lg:translate-x-12 lg:-translate-y-6 transform-gpu transition-all duration-1000 ease-out z-20 group hover:scale-[1.7] cursor-pointer pointer-events-none select-none">
+                  <Image
+                    src="/images/CTA.webp"
+                    alt="Turbo Service Premium"
+                    fill
+                    className="object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.1)]"
+                    priority
+                  />
+                </div>
+
+                {/* Small Decorative Badge */}
+                <div className="absolute -bottom-8 -right-8 bg-[#d00000] text-white w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl z-30 transform -rotate-12 select-none pointer-events-none border-4 border-white lg:flex hidden">
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Garancija</span>
+                  <span className="text-xl font-black">12m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==================== FOOTER ==================== */}
+        <footer className="py-12 lg:py-16 px-6 border-t border-[#000000]/5 bg-[#f0f0f0]">
+          <div className="max-w-[90rem] mx-auto flex flex-col items-center gap-12 text-center">
+            <div className="flex justify-center w-full">
+              <Logo className="w-32 md:w-44" />
+            </div>
+            <div className="flex flex-col items-center text-center gap-4">
+              <p className="text-[10px] font-black text-black/40 tracking-[0.3em] uppercase max-w-[280px] sm:max-w-none">
+                © {new Date().getFullYear()} Turbo Servis Novi Sad. Sva prava zadržana.
               </p>
-              
-              <div className="space-y-6">
-                <a href="tel:+381637725026" className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#c45c26]/10 flex items-center justify-center group-hover:bg-[#c45c26]/20 transition-colors">
-                    <span className="text-xl">📞</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-600 tracking-wider mb-1">TELEFON</p>
-                    <p className="text-[#f5f0e8] font-semibold group-hover:text-[#c45c26] transition-colors">063 772 5026</p>
-                  </div>
-                </a>
-                
-                <a href="https://maps.google.com/?q=Svetih+Arhanđela+9,+Veternik" target="_blank" className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#c45c26]/10 flex items-center justify-center group-hover:bg-[#c45c26]/20 transition-colors">
-                    <span className="text-xl">📍</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-600 tracking-wider mb-1">ADRESA</p>
-                    <p className="text-[#f5f0e8] font-semibold group-hover:text-[#c45c26] transition-colors">Svetih Arhanđela 9, Veternik</p>
-                  </div>
-                </a>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#c45c26]/10 flex items-center justify-center">
-                    <span className="text-xl">🕐</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-600 tracking-wider mb-1">RADNO VREME</p>
-                    <p className="text-[#f5f0e8] font-semibold">Pon-Pet 8-17h · Sub 8-13h</p>
-                  </div>
-                </div>
+              <div className="flex justify-center gap-8">
+                <Link href="#usluge" className="text-[10px] font-black uppercase tracking-widest text-black/40 hover:text-[#d00000] transition-colors">Usluge</Link>
+                <Link href="#kontakt" className="text-[10px] font-black uppercase tracking-widest text-black/40 hover:text-[#d00000] transition-colors">Kontakt</Link>
               </div>
-              
-              {/* Quick actions */}
-              <div className="flex gap-3 mt-10">
-                <a 
-                  href="tel:+381637725026" 
-                  className="flex-1 bg-[#c45c26] hover:bg-[#d46a34] text-white py-4 rounded-xl font-semibold text-center transition-colors"
-                >
-                  📞 Pozovite
-                </a>
-                <a 
-                  href="https://wa.me/381637725026" 
-                  target="_blank"
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-semibold text-center transition-colors"
-                >
-                  💬 WhatsApp
-                </a>
-              </div>
-            </div>
-            
-            {/* Right - Form */}
-            <div className="lg:col-span-3 reveal">
-              <form className="bg-zinc-900/50 border border-zinc-800/50 rounded-2xl p-8">
-                <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                  <input 
-                    type="text" 
-                    placeholder="Ime i prezime" 
-                    className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600" 
-                  />
-                  <input 
-                    type="tel" 
-                    placeholder="Telefon *" 
-                    required 
-                    className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600" 
-                  />
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="Vozilo (marka, model, godina)" 
-                  className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600 mb-4" 
-                />
-                <textarea 
-                  rows={4} 
-                  placeholder="Opišite problem sa turbinom..." 
-                  className="w-full px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-xl focus:border-[#c45c26] outline-none transition-colors text-[#f5f0e8] placeholder:text-zinc-600 resize-none mb-6" 
-                />
-                <button 
-                  type="submit" 
-                  className="w-full bg-[#c45c26] hover:bg-[#d46a34] text-white py-4 rounded-xl font-semibold text-lg transition-colors"
-                >
-                  Pošaljite Upit
-                </button>
-                <p className="text-zinc-600 text-xs text-center mt-4">Odgovaramo u roku od nekoliko sati</p>
-              </form>
+              <a
+                href="https://engram.media"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[7px] font-black uppercase tracking-[0.4em] text-black/20 hover:text-black transition-colors mt-6"
+              >
+                website development: engram.media
+              </a>
             </div>
           </div>
-          
-          {/* Map */}
-          <div className="mt-12 reveal">
-            <div className="rounded-2xl overflow-hidden border border-zinc-800/50 h-[300px]">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2805.8!2d19.7633!3d45.2707!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b1049a0b8b0b1%3A0x0!2sSvetih%20Arhan%C4%91ela%209%2C%20Veternik!5e0!3m2!1sen!2srs!4v1700000000000"
-                width="100%"
-                height="100%"
-                style={{ border: 0, filter: 'grayscale(1) contrast(1.1) brightness(0.8)' }}
-                allowFullScreen
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== FINAL CTA ==================== */}
-      <section className="py-24 bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a] relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center opacity-5">
-          <TurboIcon className="w-[800px] h-[800px]" color="#c45c26" />
-        </div>
-        
-        <div className="max-w-3xl mx-auto px-6 text-center relative z-10 reveal">
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl text-[#f5f0e8] mb-6">
-            PROBLEMI SA<br /><span className="text-[#c45c26]">TURBINOM?</span>
-          </h2>
-          <p className="text-zinc-500 text-lg mb-10 max-w-xl mx-auto">
-            Pozovite nas za besplatnu dijagnostiku i stručan savet. Ne čekajte da problem postane veći.
-          </p>
-          <a 
-            href="tel:+381637725026" 
-            className="inline-flex items-center gap-4 bg-[#c45c26] hover:bg-[#d46a34] text-white px-10 py-5 rounded-xl font-display text-2xl transition-all hover:scale-105 glow-rust"
-          >
-            <span>📞</span>
-            063 772 5026
-          </a>
-        </div>
-      </section>
-
-      {/* ==================== FOOTER ==================== */}
-      <footer className="bg-[#050505] border-t border-zinc-900 py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-4">
-              <SpinningTurbo className="w-10 h-10 opacity-60" />
-              <div>
-                <div className="font-display text-xl text-[#f5f0e8]">TURBO SERVIS</div>
-                <div className="text-xs text-zinc-600 tracking-wider">NOVI SAD · EST. 2014</div>
-              </div>
-            </div>
-            <div className="text-center md:text-right">
-              <p className="text-zinc-600 text-sm">Stručan remont turbo kompresora</p>
-              <p className="text-zinc-700 text-xs mt-1">© 2026 Sva prava zadržana</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </main >
     </>
   )
 }

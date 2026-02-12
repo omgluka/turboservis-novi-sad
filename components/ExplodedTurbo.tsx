@@ -38,23 +38,23 @@ export function ExplodedTurbo({ className = '' }: { className?: string }) {
           </linearGradient>
           {/* Glow filter */}
           <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
 
         {/* Connection lines */}
-        <line x1="-100" y1="0" x2="100" y2="0" stroke="#c45c26" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.3" />
+        <line x1="-100" y1="0" x2="100" y2="0" stroke="#d00000" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.3" />
 
         {/* Parts */}
         {parts.map((part, i) => (
-          <g 
+          <g
             key={part.id}
             className="cursor-pointer transition-all duration-500"
-            style={{ 
+            style={{
               transform: isVisible ? `translateX(${part.x}px)` : 'translateX(0)',
               opacity: isVisible ? 1 : 0,
               transitionDelay: `${part.delay}ms`
@@ -65,7 +65,7 @@ export function ExplodedTurbo({ className = '' }: { className?: string }) {
             {/* Part shape based on type */}
             {part.id === 'compressor' && (
               <g filter={hoveredPart === part.id ? 'url(#glow)' : undefined}>
-                <circle cx="0" cy="0" r="35" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#c45c26' : '#555'} strokeWidth="2" />
+                <circle cx="0" cy="0" r="35" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#d00000' : '#555'} strokeWidth="2" />
                 {/* Blade pattern */}
                 {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
                   <line
@@ -82,13 +82,13 @@ export function ExplodedTurbo({ className = '' }: { className?: string }) {
             )}
             {part.id === 'housing' && (
               <g filter={hoveredPart === part.id ? 'url(#glow)' : undefined}>
-                <ellipse cx="0" cy="0" rx="30" ry="40" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#c45c26' : '#555'} strokeWidth="2" />
+                <ellipse cx="0" cy="0" rx="30" ry="40" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#d00000' : '#555'} strokeWidth="2" />
                 <ellipse cx="0" cy="0" rx="20" ry="28" fill="#222" />
               </g>
             )}
             {part.id === 'bearing' && (
               <g filter={hoveredPart === part.id ? 'url(#glow)' : undefined}>
-                <rect x="-20" y="-30" width="40" height="60" rx="5" fill="url(#copperGradient)" stroke={hoveredPart === part.id ? '#fff' : '#c45c26'} strokeWidth="2" />
+                <rect x="-20" y="-30" width="40" height="60" rx="5" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#fff' : '#d00000'} strokeWidth="2" />
                 <circle cx="0" cy="-15" r="8" fill="#333" stroke="#666" />
                 <circle cx="0" cy="15" r="8" fill="#333" stroke="#666" />
                 <rect x="-15" y="-5" width="30" height="10" fill="#333" />
@@ -96,14 +96,14 @@ export function ExplodedTurbo({ className = '' }: { className?: string }) {
             )}
             {part.id === 'turbine-housing' && (
               <g filter={hoveredPart === part.id ? 'url(#glow)' : undefined}>
-                <ellipse cx="0" cy="0" rx="30" ry="40" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#c45c26' : '#555'} strokeWidth="2" />
+                <ellipse cx="0" cy="0" rx="30" ry="40" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#d00000' : '#555'} strokeWidth="2" />
                 <ellipse cx="0" cy="0" rx="20" ry="28" fill="#222" />
                 <path d="M-25 -30 Q-40 0 -25 30" fill="none" stroke="#555" strokeWidth="3" />
               </g>
             )}
             {part.id === 'turbine' && (
               <g filter={hoveredPart === part.id ? 'url(#glow)' : undefined}>
-                <circle cx="0" cy="0" r="35" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#c45c26' : '#555'} strokeWidth="2" />
+                <circle cx="0" cy="0" r="35" fill="url(#metalGradient)" stroke={hoveredPart === part.id ? '#d00000' : '#555'} strokeWidth="2" />
                 {/* Turbine blade pattern */}
                 {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
                   <path
@@ -119,10 +119,10 @@ export function ExplodedTurbo({ className = '' }: { className?: string }) {
             )}
 
             {/* Label */}
-            <text 
-              x="0" 
-              y="55" 
-              textAnchor="middle" 
+            <text
+              x="0"
+              y="55"
+              textAnchor="middle"
               className="text-[8px] fill-zinc-500 font-medium uppercase tracking-wider"
               style={{ opacity: hoveredPart === part.id ? 1 : 0.7 }}
             >
@@ -134,9 +134,9 @@ export function ExplodedTurbo({ className = '' }: { className?: string }) {
 
       {/* Hover info panel */}
       {hoveredPart && (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-[#1a1a1a] border border-zinc-800 rounded-lg px-4 py-2 text-center animate-fade-in">
-          <p className="text-[#c45c26] font-display text-sm">{parts.find(p => p.id === hoveredPart)?.name}</p>
-          <p className="text-zinc-500 text-xs mt-1">{parts.find(p => p.id === hoveredPart)?.desc}</p>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 neumorphic-flat px-6 py-3 text-center animate-fade-in border-none">
+          <p className="text-[#d00000] font-swiss font-black text-sm uppercase tracking-widest">{parts.find(p => p.id === hoveredPart)?.name}</p>
+          <p className="text-black/40 text-xs mt-1 font-medium">{parts.find(p => p.id === hoveredPart)?.desc}</p>
         </div>
       )}
     </div>
@@ -153,15 +153,15 @@ export function TurboSpecs() {
   ]
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {specs.map((spec, i) => (
-        <div 
-          key={i} 
-          className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-6 text-center hover:border-[#c45c26] transition-all hover:scale-105 group"
+        <div
+          key={i}
+          className="neumorphic-flat p-8 text-center hover:scale-105 transition-all group border-none"
         >
-          <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{spec.icon}</div>
-          <div className="text-[#c45c26] font-display text-xl">{spec.value}</div>
-          <div className="text-zinc-500 text-xs uppercase tracking-wider mt-2">{spec.label}</div>
+          <div className="text-3xl mb-4 group-hover:scale-110 transition-transform">{spec.icon}</div>
+          <div className="text-[#d00000] font-swiss font-black text-xl uppercase tracking-tighter">{spec.value}</div>
+          <div className="text-black/30 text-[10px] font-black uppercase tracking-wider mt-2">{spec.label}</div>
         </div>
       ))}
     </div>

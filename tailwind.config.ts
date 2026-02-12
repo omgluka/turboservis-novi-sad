@@ -7,9 +7,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        primary: '#0D2137',
-        accent: '#DC2626',
+      fontFamily: {
+        poppins: ['var(--font-poppins)', 'sans-serif'],
+        swiss: ['var(--font-inter)', 'sans-serif'],
       },
     },
   },
