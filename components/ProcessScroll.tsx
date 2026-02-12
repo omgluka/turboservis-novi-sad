@@ -100,7 +100,7 @@ export default function ProcessScroll() {
                 <div className="w-full lg:w-1/2 h-[60vh] lg:h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-20 z-10 relative bg-[#f0f0f0] border-b lg:border-r lg:border-b-0 border-black/5">
 
                     {/* Vertical Progress Line (Left on mobile, Right on desktop) */}
-                    <div className="absolute left-6 sm:left-12 lg:left-auto lg:right-[-4px] top-1/2 -translate-y-1/2 h-[50%] w-8 lg:w-10 z-20">
+                    <div className="absolute left-6 sm:left-12 lg:left-auto lg:right-[-4px] top-1/2 -translate-y-1/2 h-[50%] w-6 lg:w-10 z-20">
                         {/* The "Groove" (Track) */}
                         <div className="absolute inset-0 rounded-full neumorphic-pressed overflow-hidden">
                             {/* Red Fill Line */}
@@ -122,13 +122,13 @@ export default function ProcessScroll() {
                                 return (
                                     <div
                                         key={i}
-                                        className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full transition-all duration-500 flex items-center justify-center relative translate-x-0
+                                        className={`w-6 h-6 lg:w-10 lg:h-10 rounded-full transition-all duration-500 flex items-center justify-center relative translate-x-0
                                             ${isActive
                                                 ? 'bg-[#d00000] border-4 border-[#f0f0f0] scale-110 shadow-[0_0_15px_rgba(208,0,0,0.4)]'
                                                 : 'bg-[#f0f0f0] border-2 border-black/5 neumorphic-flat shadow-sm'
                                             }`}
                                     >
-                                        <span className={`text-xs lg:text-sm font-black transition-colors duration-500 ${isActive ? 'text-white' : 'text-black/20'}`}>
+                                        <span className={`text-[10px] lg:text-sm font-black transition-colors duration-500 ${isActive ? 'text-white' : 'text-black/20'}`}>
                                             {i + 1}
                                         </span>
                                     </div>
