@@ -100,7 +100,7 @@ export default function ProcessScroll() {
                 <div className="w-full lg:w-1/2 h-[60vh] lg:h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-20 z-10 relative bg-[#f0f0f0] border-b lg:border-r lg:border-b-0 border-black/5">
 
                     {/* Vertical Progress Line (Left on mobile, Right on desktop) */}
-                    <div className="absolute left-6 sm:left-12 lg:left-auto lg:right-[-4px] top-1/2 -translate-y-1/2 h-[50%] w-6 lg:w-10 z-20">
+                    <div className="absolute left-[18px] sm:left-12 lg:left-auto lg:right-[-4px] top-1/2 -translate-y-1/2 h-[50%] w-6 lg:w-10 z-20">
                         {/* The "Groove" (Track) */}
                         <div className="absolute inset-0 rounded-full neumorphic-pressed overflow-hidden">
                             {/* Red Fill Line */}
@@ -137,7 +137,7 @@ export default function ProcessScroll() {
                         </div>
                     </div>
 
-                    <div className="space-y-6 lg:space-y-10 relative z-10 text-left lg:text-right pl-8 lg:pl-0 lg:pr-4 xl:pr-6">
+                    <div className="space-y-6 lg:space-y-10 relative z-10 text-left lg:text-right pl-[38px] lg:pl-0 lg:pr-4 xl:pr-6">
                         {/* Step Indicator */}
                         <div className="flex items-center justify-start lg:justify-end gap-4 lg:gap-6 mb-2 lg:mb-4">
                             <span className="text-[10px] font-black tracking-[0.2em] uppercase text-[#d00000] bg-[#f0f0f0] neumorphic-pressed px-4 py-2 rounded-full">
